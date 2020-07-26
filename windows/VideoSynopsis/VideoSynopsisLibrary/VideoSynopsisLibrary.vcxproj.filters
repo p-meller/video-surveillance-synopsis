@@ -21,12 +21,30 @@
     <ClInclude Include="Detector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KalmanFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Track.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VideoSynopsisLibrary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Detector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tracker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KalmanFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Track.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

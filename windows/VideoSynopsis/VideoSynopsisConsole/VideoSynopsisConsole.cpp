@@ -7,23 +7,39 @@
 #include <opencv2/opencv.hpp>
 #pragma warning(pop)
 
+#include "Tracker.h"
+
 int main()
 {
 
 	Detector detector;
+	Tracker tracker;
 
 	cv::VideoCapture video("1.mp4");
 
 	int wait = 0;
 	int add = 20;
 
+	int i = 0;
+
 	while (video.isOpened())
 	{
-		cv::UMat uframe;
-		video.read(uframe);
+		cv::Mat frame;
+		video.read(frame);
 
-		detector.processFrame(uframe);
-		cv::imshow("window", detector.getOutput());
+		detector.processFrame(frame);
+		if (i > 20)
+		{
+			tracker.processDetections(detector.getDetections());
+			tracker.drawTracks(frame);
+		}
+		for (auto&& element : detector.getDetections())
+		{
+			cv::rectangle(frame, element, { 0,255,0 });
+		}
+
+		cv::imshow("window", frame);
+		cv::imshow("mask", detector.getOutput());
 		int key = cv::waitKey(wait);
 		if (key == 'w')
 		{
@@ -31,7 +47,8 @@ int main()
 			add *= -1;
 		}
 
-		printf("milliseconds = %3f\n", detector.microseconds / 1000.0);
+		printf("frameNum = %d, milliseconds = %3f\n", i, detector.Microseconds / 1000.0);
+		++i;
 	}
 
 
