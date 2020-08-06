@@ -3,6 +3,7 @@
 #include <ortools/base/logging.h>
 #include <ortools/linear_solver/linear_solver.h>
 
+
 std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 {
 	int workersNum;
@@ -224,15 +225,38 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 
 void Tracker::removeTracks(const std::vector<int>& tracksToRemove)
 {
+	static auto deleteStatement = db << "delete from tracks where trackId = ?";
+	db << "begin;";
+	
 	for (unsigned int i = tracksToRemove.size(); i > 0; --i)
 	{
+		if(!trackList[i-1].isValid())
+		{
+			deleteStatement << trackList[i - 1].getId();
+			deleteStatement++;
+		}
 		trackList.erase(trackList.begin() + tracksToRemove[i - 1]);
 	}
+
+	db << "commit;";
 }
 
-Tracker::Tracker() : assignmentSolver(new operations_research::MPSolver("simple_mip_program", operations_research::MPSolver::GLOP_LINEAR_PROGRAMMING))
+Tracker::Tracker(const std::string& database) : assignmentSolver(new operations_research::MPSolver("simple_mip_program", operations_research::MPSolver::GLOP_LINEAR_PROGRAMMING)),db(database + ".db")
 {
 	trackList.reserve(maxSimultaneousTracks);
+
+	db <<
+		"create table if not exists tracks ("
+		"   _id integer primary key autoincrement not null,"
+		"   trackId int,"
+		"   frameNum int,"
+		"   x int,"
+		"   y int,"
+		"   width int,"
+		"   height int"
+		");";
+
+	auto insertStatement = db << "insert into tracks (trackId,frameNum,x,y,width,height) values (?,?,?,?,?,?);";
 }
 
 Tracker::~Tracker()
@@ -282,7 +306,6 @@ void Tracker::processDetections(const std::vector<cv::Rect>& detections)
 		}
 	}
 
-
 	removeTracks(trackToRemove);
 
 	for (auto i = 0u; i < detections.size(); ++i)
@@ -291,6 +314,39 @@ void Tracker::processDetections(const std::vector<cv::Rect>& detections)
 		{
 			trackList.emplace_back(Track(detections[i]));
 		}
+	}
+}
+
+void Tracker::saveTracks(int frameNum)
+{
+	static auto insertStatement = db << "insert into tracks (trackId,frameNum,x,y,width,height) values (?,?,?,?,?,?);";
+
+	try
+	{
+		db << "begin;";
+
+		for (auto&& track : trackList)
+		{
+			auto currentTrack = track.getCurrentTrack();
+
+			insertStatement
+				<< track.getId()
+				<< frameNum
+				<< currentTrack.x
+				<< currentTrack.y
+				<< currentTrack.width
+				<< currentTrack.height;
+			insertStatement++;
+		}
+
+		db << "commit;";
+	}
+	catch (sqlite::sqlite_exception& e)
+	{
+		printf(e.what());
+		printf("\n");
+		printf(e.get_sql().c_str());
+		printf("\n");
 	}
 }
 

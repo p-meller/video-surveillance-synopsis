@@ -118,7 +118,7 @@ void Detector::getMaskByClustering(const cv::Mat& input)
 Detector::Detector()
 {
 	//bgSubtractor = cv::cuda::createBackgroundSubtractorMOG2();
-	bg_subtractor_ = cv::createBackgroundSubtractorMOG2(500,64);
+	bg_subtractor_ = cv::createBackgroundSubtractorMOG2(500,16);
 	blob_detector_ = cv::SimpleBlobDetector::create();
 	detections_.reserve(50);
 }

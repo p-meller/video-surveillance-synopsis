@@ -13,7 +13,7 @@ int main()
 {
 
 	Detector detector;
-	Tracker tracker;
+	Tracker tracker("db");
 
 	cv::VideoCapture video("1.mp4");
 
@@ -26,12 +26,16 @@ int main()
 	{
 		cv::Mat frame;
 		video.read(frame);
+		int nextFrame = static_cast<int>(video.get(cv::CAP_PROP_POS_FRAMES));
+
+		cv::resize(frame, frame, { 1280,720 });
 
 		detector.processFrame(frame);
 		if (i > 20)
 		{
 			tracker.processDetections(detector.getDetections());
 			tracker.drawTracks(frame);
+			tracker.saveTracks(i);
 		}
 		for (auto&& element : detector.getDetections())
 		{
@@ -40,11 +44,20 @@ int main()
 
 		cv::imshow("window", frame);
 		cv::imshow("mask", detector.getOutput());
-		int key = cv::waitKey(wait);
+		int key = cv::waitKeyEx(wait);
 		if (key == 'w')
 		{
 			wait += add;
 			add *= -1;
+		}
+		else if (key == 2424832)//left
+		{
+			nextFrame = nextFrame < 1000 ? 0 : nextFrame - 1000;
+			video.set(cv::CAP_PROP_POS_FRAMES, nextFrame);
+		}
+		else if (key == 2555904)//right
+		{
+			video.set(cv::CAP_PROP_POS_FRAMES, nextFrame + 1000);
 		}
 
 		printf("frameNum = %d, milliseconds = %3f\n", i, detector.Microseconds / 1000.0);

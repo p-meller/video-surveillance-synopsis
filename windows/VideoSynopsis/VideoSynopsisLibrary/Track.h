@@ -20,12 +20,11 @@ class Track
 	int detectedFrames;
 	int trackedFrames;
 
+	bool _isValid;
+
 	KalmanFilter kalmanFilter;
-
 public:
-
-
-
+	
 	static unsigned long long generateID();
 
 
@@ -45,6 +44,8 @@ public:
 	void update(const cv::Rect& rect);
 
 	std::array<cv::Rect, BUFFER_SIZE> getPrevTracks() const;
+
+	bool isValid() const;
 
 	constexpr int getPrevTracksBufferSize() const;
 };

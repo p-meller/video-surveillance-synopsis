@@ -4,6 +4,7 @@
 #include <opencv2/core.hpp>
 #include "KalmanFilter.h"
 #include "Track.h"
+#include <sqlite_modern_cpp.h>
 
 
 
@@ -32,13 +33,16 @@ class Tracker
 
 	std::vector<int> assignTracks(const std::vector<cv::Rect>& detections);
 	void removeTracks(const std::vector<int>& tracksToRemove);
+
+	sqlite::database db;
 public:
 
 	
-	Tracker();
+	Tracker(const std::string& database);
 	~Tracker();
 
 	void processDetections(const std::vector<cv::Rect>& detections);
+	void saveTracks(int frameNum);
 
 	void drawTracks(cv::Mat& img);
 };

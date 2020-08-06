@@ -19,6 +19,7 @@ Track::Track(const cv::Rect& currentTrack) :
 	lostDetectionFrames(0),
 	detectedFrames(1),
 	trackedFrames(1),
+	_isValid(false),
 	kalmanFilter({ currentTrack.x + currentTrack.width / 2, currentTrack.y + currentTrack.height })
 {
 }
@@ -55,9 +56,14 @@ bool Track::incrementLostFrames()
 
 void Track::incrementDetectedFrames()
 {
+	if(minDetectedFrameThreshold)
 	lostDetectionFrames = 0;
 	++detectedFrames;
 	++trackedFrames;
+	if (!_isValid && minDetectedFrameThreshold<=detectedFrames)
+	{
+		_isValid = true;
+	}
 }
 
 void Track::update()
@@ -92,4 +98,9 @@ std::array<cv::Rect, Track::BUFFER_SIZE> Track::getPrevTracks() const
 		temp[i] = prev_tracks_[(i + prevTrackZeroIndex) % BUFFER_SIZE];
 	}
 	return  temp;
+}
+
+bool Track::isValid() const
+{
+	return _isValid;
 }
