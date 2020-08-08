@@ -1,18 +1,19 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.5)
 
 project(videoSynopsisLibrary VERSION 0.0.1 DESCRIPTION "Video synopsis library")
 
 #SET("OpenCV_DIR" "/usr/share/OpenCV")
 find_package(OpenCV REQUIRED)
 find_package(Boost COMPONENTS container REQUIRED)
+#find_package(glog REQUIRED)
 #find_package( Op REQUIRED )
 
 add_library(videoSynopsisLibrary STATIC
-        src/Detector.cpp
-        src/KalmanFilter.cpp
-        src/Track.cpp
-        src/Tracker.cpp
-        )
+        src/Detector/Detector.cpp
+        src/Tracker/KalmanFilter.cpp
+        src/Tracker/Track.cpp
+        src/Tracker/Tracker.cpp
+        src/Detector/DetectorSettings.cpp src/Detector/DetectorSettings.h src/Detector/DetectorOutputTypeEnum.h)
 
 
 IF(WIN32)

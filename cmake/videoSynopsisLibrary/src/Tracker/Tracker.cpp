@@ -1,6 +1,6 @@
 #include "Tracker.h"
 
-#include <ortools/base/logging.h>
+//#include <ortools/base/logging.h>
 #include <ortools/linear_solver/linear_solver.h>
 
 std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
@@ -168,10 +168,10 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 	// Check that the problem has a feasible solution.
 	if (operations_research::MPSolver::OPTIMAL != result_status &
 		operations_research::MPSolver::FEASIBLE != result_status) {
-		LOG(WARNING) << "No solution found.";
+		//LOG(WARNING) << "No solution found.";
 	}
 
-	LOG(INFO) << "Total cost = " << objective->Value() << "\n\n";
+	//LOG(INFO) << "Total cost = " << objective->Value() << "\n\n";
 
 	if (assignForTracks)
 	{
@@ -197,8 +197,8 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 				if (assignForTracks)
 				{
 					double cost = costMatrix.at<double>(i, j);
-					LOG(INFO) << "Worker " << i << " assigned to task " << j
-						<< ".  Cost = " << cost;
+					//LOG(INFO) << "Worker " << i << " assigned to task " << j
+					//	<< ".  Cost = " << cost;
 					if (cost < maxEuclidDistance)
 					{
 						assignedTracks[i] = j;
@@ -207,8 +207,8 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 				else
 				{
 					double cost = costMatrix.at<double>(j, i);
-					LOG(INFO) << "Worker " << j << " assigned to task " << i
-						<< ".  Cost = " << cost;
+					//LOG(INFO) << "Worker " << j << " assigned to task " << i
+					//	<< ".  Cost = " << cost;
 					if (cost < maxEuclidDistance)
 					{
 						assignedTracks[j] = i;

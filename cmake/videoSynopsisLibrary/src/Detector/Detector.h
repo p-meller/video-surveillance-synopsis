@@ -10,20 +10,22 @@
 class Detector
 {
 	cv::Ptr<cv::BackgroundSubtractor> bg_subtractor_;
-	cv::Ptr<cv::SimpleBlobDetector> blob_detector_;
 	std::vector<cv::Rect> detections_;
-	cv::Mat input_;
+	cv::Mat foreground;
+	cv::Mat foregroundFiltered;
+	cv::Mat contours;
+	cv::Mat contoursFiltered;
 	cv::Mat mask_;
 	cv::Mat output_;
 
 
-	void getMaskByContours(const cv::Mat& input);
+	void getMaskByContours(const cv::Mat& input, bool preview = false);
 	void getMaskByClustering(const cv::Mat& input);
 
 public:
 	long long Microseconds;
 	Detector();
-	void processFrame(const cv::Mat& inputFrame);
+	void processFrame(const cv::Mat& inputFrame, bool preview = false);
 	void processFrameGPU(const cv::Mat& inputFrame);
 	const cv::Mat& getOutput() const;
 	const std::vector<cv::Rect>& getDetections() const;

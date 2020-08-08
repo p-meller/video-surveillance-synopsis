@@ -10,7 +10,7 @@
 #pragma warning(pop)
 
 
-void Detector::getMaskByContours(const cv::Mat& input)
+void Detector::getMaskByContours(const cv::Mat& input, bool preview)
 {
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -119,15 +119,12 @@ Detector::Detector()
 {
 	//bgSubtractor = cv::cuda::createBackgroundSubtractorMOG2();
 	bg_subtractor_ = cv::createBackgroundSubtractorMOG2(500,64);
-	blob_detector_ = cv::SimpleBlobDetector::create();
 	detections_.reserve(50);
 }
 
-void Detector::processFrame(const cv::Mat& inputFrame)
+void Detector::processFrame(const cv::Mat& inputFrame, bool preview)
 {
 	auto start = std::chrono::high_resolution_clock::now();
-
-	//cv::Mat NinputFrame = inputFrame.getMat(cv::ACCESS_READ);
 
 	cv::Mat rawFg;
 	bg_subtractor_->apply(inputFrame, rawFg);
