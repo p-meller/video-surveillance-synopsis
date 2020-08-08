@@ -9,14 +9,14 @@
 
 class Detector
 {
-	cv::Ptr<cv::BackgroundSubtractor> bg_subtractor_;
+	cv::Ptr<cv::BackgroundSubtractor> bgSubtractor_;
 	std::vector<cv::Rect> detections_;
-	cv::Mat foreground;
-	cv::Mat foregroundFiltered;
-	cv::Mat contours;
-	cv::Mat contoursFiltered;
+	cv::Mat foreground_;
+	cv::Mat foregroundFiltered_;
+	cv::Mat contours_;
+	cv::Mat contoursFiltered_;
 	cv::Mat mask_;
-	cv::Mat output_;
+	cv::Mat roi_;
 
 
 	void getMaskByContours(const cv::Mat& input, bool preview = false);

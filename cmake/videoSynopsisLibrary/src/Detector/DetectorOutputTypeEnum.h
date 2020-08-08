@@ -1,13 +1,8 @@
-//
-// Created by piotr on 08.08.2020.
-//
-
 #ifndef VIDEOSYNOPSIS_DETECTOROUTPUTTYPEENUM_H
 #define VIDEOSYNOPSIS_DETECTOROUTPUTTYPEENUM_H
 
 enum DetectorOutputTypeEnum{
     BG_SUBTRACTION,
-
     DETECTIONS
 };
 

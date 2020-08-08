@@ -2,18 +2,18 @@ cmake_minimum_required(VERSION 3.5)
 
 project(videoSynopsisLibrary VERSION 0.0.1 DESCRIPTION "Video synopsis library")
 
-#SET("OpenCV_DIR" "/usr/share/OpenCV")
+set(CMAKE_CXX_STANDARD 17)
+
 find_package(OpenCV REQUIRED)
 find_package(Boost COMPONENTS container REQUIRED)
-#find_package(glog REQUIRED)
-#find_package( Op REQUIRED )
 
 add_library(videoSynopsisLibrary STATIC
         src/Detector/Detector.cpp
         src/Tracker/KalmanFilter.cpp
         src/Tracker/Track.cpp
         src/Tracker/Tracker.cpp
-        src/Detector/DetectorSettings.cpp src/Detector/DetectorSettings.h src/Detector/DetectorOutputTypeEnum.h)
+        src/Detector/DetectorSettings.cpp
+        src/Detector/DetectorOutputTypeEnum.h)
 
 
 IF(WIN32)
@@ -22,14 +22,11 @@ SET_TARGET_PROPERTIES(ortools PROPERTIES IMPORTED_LOCATION "E:/or-tools/lib/orto
 target_include_directories(videoSynopsisLibrary PRIVATE "E:/or-tools/include")
 ENDIF()
 
-message(STATUS ${OpenCV_LIBS})
 
 target_link_libraries(videoSynopsisLibrary PRIVATE ${OpenCV_LIBS} ${Boost_LIBS} ortools)
 
-
 set_target_properties(videoSynopsisLibrary PROPERTIES VERSION ${PROJECT_VERSION})
-
-set_target_properties(videoSynopsisLibrary PROPERTIES INTERFACE_INCLUDE_DIRECTORIES /videoSynopsisLibrary/include/videoSynopsisLib.h)
+set_target_properties(videoSynopsisLibrary PROPERTIES INTERFACE_INCLUDE_DIRECTORIES /videoSynopsisLibrary/include/)
 
 target_include_directories(videoSynopsisLibrary PRIVATE src)
 

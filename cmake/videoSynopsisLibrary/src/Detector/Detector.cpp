@@ -12,17 +12,17 @@
 
 void Detector::getMaskByContours(const cv::Mat& input, bool preview)
 {
-	std::vector<std::vector<cv::Point> > contours;
+	std::vector<std::vector<cv::Point> > contoursList;
 	std::vector<cv::Vec4i> hierarchy;
-	cv::findContours(input, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+	cv::findContours(input, contoursList, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
 
 	cv::Mat filterMask = cv::Mat::zeros(input.size(), CV_8UC1);
-	for (int i = 0; i < contours.size(); i++)
+	for (int i = 0; i < contoursList.size(); i++)
 	{
-		double area = cv::contourArea(contours[i]);
+		double area = cv::contourArea(contoursList[i]);
 		if (area > 20) {
-			cv::drawContours(filterMask, contours, i, cv::Scalar(255), -1);
+			cv::drawContours(filterMask, contoursList, i, cv::Scalar(255), -1);
 		}
 	}
 
@@ -32,16 +32,16 @@ void Detector::getMaskByContours(const cv::Mat& input, bool preview)
 	cv::morphologyEx(filterMask, fiiltered, cv::MorphTypes::MORPH_CLOSE, structEleme3);
 
 	mask_ = cv::Mat::zeros(input.size(), CV_8UC3);
-	cv::findContours(fiiltered, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+	cv::findContours(fiiltered, contoursList, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
 	detections_.clear();
 	int j = 0;
-	for (int i = 0; i < contours.size(); i++)
+	for (int i = 0; i < contoursList.size(); i++)
 	{
-		double area = cv::contourArea(contours[i]);
+		double area = cv::contourArea(contoursList[i]);
 		if (area > 20)
 		{
-			detections_.emplace_back(cv::boundingRect(contours[i]));
+			detections_.emplace_back(cv::boundingRect(contoursList[i]));
 			cv::rectangle(mask_, detections_[j++], cv::Scalar(255, 255, 255), -1);
 		}
 	}
@@ -118,7 +118,7 @@ void Detector::getMaskByClustering(const cv::Mat& input)
 Detector::Detector()
 {
 	//bgSubtractor = cv::cuda::createBackgroundSubtractorMOG2();
-	bg_subtractor_ = cv::createBackgroundSubtractorMOG2(500,64);
+	bgSubtractor_ = cv::createBackgroundSubtractorMOG2(500, 64);
 	detections_.reserve(50);
 }
 
@@ -127,7 +127,7 @@ void Detector::processFrame(const cv::Mat& inputFrame, bool preview)
 	auto start = std::chrono::high_resolution_clock::now();
 
 	cv::Mat rawFg;
-	bg_subtractor_->apply(inputFrame, rawFg);
+	bgSubtractor_->apply(inputFrame, rawFg);
 
 	cv::Mat threshold;
 	cv::threshold(rawFg, threshold, 127, 255, cv::ThresholdTypes::THRESH_BINARY);
@@ -149,7 +149,7 @@ void Detector::processFrame(const cv::Mat& inputFrame, bool preview)
 
 
 
-	cv::bitwise_and(inputFrame, mask_, output_);
+	cv::bitwise_and(inputFrame, mask_, roi_);
 
 	//output = rawFg;
 
@@ -232,7 +232,7 @@ void Detector::processFrameGPU(const cv::Mat& inputFrame)
 
 const cv::Mat& Detector::getOutput() const
 {
-	return output_;
+	return roi_;
 }
 
 const std::vector<cv::Rect>& Detector::getDetections() const
