@@ -4,17 +4,19 @@
 #include <QQuickImageProvider>
 #include <QObject>
 
-class PreviewImageProvider :public QObject, public QQuickImageProvider {
-    Q_OBJECT
-    QImage previewImage;
+class PreviewImageProvider : public QObject, public QQuickImageProvider
+{
+Q_OBJECT
+	QImage previewImage;
 
 public:
-    PreviewImageProvider();
+	PreviewImageProvider();
 
-    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
+	QImage requestImage(const QString& id, QSize* size, const QSize& requestedSize) override;
 
 public slots:
-    void updatePreviewImage(const QImage& previewImage);
+
+	void updatePreviewImage(const QImage& previewImage);
 };
 
 

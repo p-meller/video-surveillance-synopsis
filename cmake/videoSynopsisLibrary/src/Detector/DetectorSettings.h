@@ -2,10 +2,11 @@
 #define VIDEOSYNOPSIS_DETECTORSETTINGS_H
 
 
-struct DetectorSettings {
-    //bg_subtractor
-    int MOG2_HISTORY = 500;
-    double MOG2_VAR_THRESHOLD = 16;
+struct DetectorSettings
+{
+	//bg_subtractor
+	int MOG2_HISTORY = 500;
+	double MOG2_VAR_THRESHOLD = 16;
 };
 
 

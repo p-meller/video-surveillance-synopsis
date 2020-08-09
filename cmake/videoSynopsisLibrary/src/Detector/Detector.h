@@ -1,11 +1,10 @@
-#pragma once
+#ifndef VIDEOSYNOPSIS_DETECTOR_H
+#define VIDEOSYNOPSIS_DETECTOR_H
 
-#pragma warning(push, 0)
 #include <opencv2/core.hpp>
 #include <opencv2/video/background_segm.hpp>
 #include <opencv2/features2d.hpp>
-#pragma warning(pop)
-
+#include "DetectorOutputTypeEnum.h"
 
 class Detector
 {
@@ -18,16 +17,22 @@ class Detector
 	cv::Mat mask_;
 	cv::Mat roi_;
 
+	bool forPreview_;
 
-	void getMaskByContours(const cv::Mat& input, bool preview = false);
-	void getMaskByClustering(const cv::Mat& input);
+	void getMaskByContours(const cv::Mat& input);
 
 public:
-	long long Microseconds;
-	Detector();
-	void processFrame(const cv::Mat& inputFrame, bool preview = false);
-	void processFrameGPU(const cv::Mat& inputFrame);
-	const cv::Mat& getOutput() const;
+	explicit Detector(bool forPreview = false);
+
+	void processFrame(const cv::Mat& inputFrame);
+
+	const cv::Mat& getOutput(DetectorOutputTypeEnum outputType) const;
+
 	const std::vector<cv::Rect>& getDetections() const;
+
+	bool isForPreview() const;
+
+	void setForPreview(bool forPreview);
 };
 
+#endif //VIDEOSYNOPSIS_DETECTOR_H

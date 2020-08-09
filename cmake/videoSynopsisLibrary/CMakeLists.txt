@@ -16,11 +16,11 @@ add_library(videoSynopsisLibrary STATIC
         src/Detector/DetectorOutputTypeEnum.h)
 
 
-IF(WIN32)
-ADD_LIBRARY(ortools STATIC IMPORTED)
-SET_TARGET_PROPERTIES(ortools PROPERTIES IMPORTED_LOCATION "E:/or-tools/lib/ortools.lib")
-target_include_directories(videoSynopsisLibrary PRIVATE "E:/or-tools/include")
-ENDIF()
+IF (WIN32)
+    ADD_LIBRARY(ortools STATIC IMPORTED)
+    SET_TARGET_PROPERTIES(ortools PROPERTIES IMPORTED_LOCATION "E:/or-tools/lib/ortools.lib")
+    target_include_directories(videoSynopsisLibrary PRIVATE "E:/or-tools/include")
+ENDIF ()
 
 
 target_link_libraries(videoSynopsisLibrary PRIVATE ${OpenCV_LIBS} ${Boost_LIBS} ortools)

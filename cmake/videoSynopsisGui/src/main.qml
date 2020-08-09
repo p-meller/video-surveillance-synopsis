@@ -1,11 +1,12 @@
+import QtMultimedia 5.12
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
-import QtMultimedia 5.9
 import com.videoSynopsisGui.classes 1.0
 
 ApplicationWindow {
+    id: applicationWindow
     menuBar: MenuBar {
         Menu {
             title: "File"
@@ -62,12 +63,11 @@ ApplicationWindow {
         }
     }
 
-
     FileDialog {
         id: fileDialog
         title: "Please choose a file"
         folder: shortcuts.home
-        nameFilters: [ "video files (*.mp4 *.mkv *.avi)", "All files (*)" ]
+        nameFilters: ["video files (*.mp4 *.mkv *.avi)", "All files (*)"]
         onAccepted: {
             mediaPlayer.source = fileDialog.fileUrl
             console.log("You chose: " + fileDialog.fileUrl)
@@ -90,9 +90,12 @@ ApplicationWindow {
     //        property variant src: video
     //        property variant source: video
     //    }
-
     SwipeView {
         id: mainSwipe
+        anchors.rightMargin: 0
+        anchors.bottomMargin: 0
+        anchors.leftMargin: 0
+        anchors.topMargin: 0
         anchors.fill: parent
         currentIndex: tabBar.currentIndex
         interactive: false
@@ -105,7 +108,7 @@ ApplicationWindow {
                 ColumnLayout {
                     anchors.fill: parent
 
-                    ColumnLayout{
+                    ColumnLayout {
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                         VideoOutput {
@@ -116,10 +119,9 @@ ApplicationWindow {
                             autoOrientation: false
 
                             filters: [testFilter]
-
                         }
 
-                        Image{
+                        Image {
                             Layout.fillHeight: true
                             Layout.fillWidth: true
                             fillMode: Image.PreserveAspectFit
@@ -127,16 +129,13 @@ ApplicationWindow {
                             id: previewImg
                             //source: "image://previewProvider/preview"
                         }
-
-
                     }
-
 
                     RowLayout {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.fillWidth: true
 
-                        Button{
+                        Button {
                             id: btnFileChooser
                             text: 'Select video'
                             onClicked: {
@@ -148,9 +147,9 @@ ApplicationWindow {
                             id: btnPlayVideo
                             text: 'play'
                             onClicked: {
-                                if(mediaPlayer.playing()){
+                                if (mediaPlayer.playing()) {
                                     mediaPlayer.pause()
-                                } else{
+                                } else {
                                     mediaPlayer.play()
                                 }
                             }
@@ -165,7 +164,6 @@ ApplicationWindow {
             GroupBox {
                 anchors.fill: parent
                 padding: 5
-
 
                 Label {
                     anchors.fill: parent

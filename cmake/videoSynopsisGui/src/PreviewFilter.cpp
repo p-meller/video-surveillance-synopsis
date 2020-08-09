@@ -1,53 +1,53 @@
 #include "PreviewFilter.h"
 #include "videoSynopsisLib.h"
 
-
 #include <QDebug>
 #include <opencv2/imgproc.hpp>
 #include <memory>
 
-QCvPreviewFilterRunnable::QCvPreviewFilterRunnable(PreviewFilter *creator) : filter(creator),
-                                                                             detector(std::make_unique<Detector>()) {}
+QCvPreviewFilterRunnable::QCvPreviewFilterRunnable(PreviewFilter* creator) : filter(creator),
+																			 detector(std::make_unique<Detector>(true))
+{
+}
 
-QVideoFilterRunnable *PreviewFilter::createFilterRunnable() {
-    return new QCvPreviewFilterRunnable(this);
+QVideoFilterRunnable* PreviewFilter::createFilterRunnable()
+{
+	return new QCvPreviewFilterRunnable(this);
 }
 
 QVideoFrame
-QCvPreviewFilterRunnable::run(QVideoFrame *input, const QVideoSurfaceFormat &surfaceFormat, RunFlags flags) {
-    Q_UNUSED(flags);
-    input->map(QAbstractVideoBuffer::ReadOnly);
+QCvPreviewFilterRunnable::run(QVideoFrame* input, const QVideoSurfaceFormat& surfaceFormat, RunFlags flags)
+{
+	Q_UNUSED(flags);
+	input->map(QAbstractVideoBuffer::ReadOnly);
 
+	if (surfaceFormat.handleType() == QAbstractVideoBuffer::NoHandle)
+	{
+		//TODO: add other pixel format support
+		cv::Mat picYUV420 = cv::Mat(input->height() * 3 / 2, input->width(), CV_8UC1, input->bits());
 
-    auto form = input->pixelFormat();
+		if (!picYUV420.empty())
+		{
+			cv::Mat picBGR;
+			cv::cvtColor(picYUV420, picBGR, cv::COLOR_YUV2BGR_I420);
+			detector->processFrame(picBGR);
+            cv::Mat outputFrame = detector->getOutput(DetectorOutputTypeEnum::DETECTIONS);
 
-    if (surfaceFormat.handleType() == QAbstractVideoBuffer::NoHandle) {
-        cv::Mat picYUV420 = cv::Mat(input->height() * 3 / 2, input->width(), CV_8UC1, input->bits());
+			//cv::cvtColor(outputFrame, picYUV420, cv::COLOR_BGR2YUV_I420);
 
-        if (!picYUV420.empty()) {
-            cv::Mat picBGR;
-            cv::cvtColor(picYUV420, picBGR, cv::COLOR_YUV2BGR_I420);
-            detector->processFrame(picBGR);
-            cv::Mat outputFrame = detector->getOutput();
-            //cv::imwrite("/home/piotr/test.png", outputFrame);
+			QImage image = QImage((const uchar*)outputFrame.data, outputFrame.cols, outputFrame.rows,
+					outputFrame.step,
+					QImage::Format_BGR888);
 
-            //cv::cvtColor(outputFrame, picYUV420, cv::COLOR_BGR2YUV_I420);
+			emit filter->imageUpdate(image.copy());
+		}
 
-            //outputFrame = picBGR;
-            QImage image = QImage((const uchar *) outputFrame.data, outputFrame.cols, outputFrame.rows,
-                                  outputFrame.step,
-                                  QImage::Format_BGR888);
+	}
+	else
+	{
+		qDebug() << "Other surface formats are not supported yet!";
+	}
 
-            emit filter->imageUpdate(image.copy());
-            //image.bits();
-
-
-        }
-
-    } else {
-        qDebug() << "Other surface formats are not supported yet!";
-    }
-
-    input->unmap();
-    return *input;
+	input->unmap();
+	return *input;
 }

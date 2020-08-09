@@ -1,7 +1,8 @@
-#pragma once
+#ifndef VIDEOSYNOPSIS_TRACK_H
+#define VIDEOSYNOPSIS_TRACK_H
+
 #include <opencv2/core.hpp>
 #include "KalmanFilter.h"
-
 
 
 class Track
@@ -10,7 +11,7 @@ class Track
 	constexpr static int lostFrameThreshold = 5;
 	constexpr static int minDetectedFrameThreshold = 5;
 
-	static unsigned long long id_counter_;
+	static unsigned int id_counter_;
 
 	cv::Rect prev_tracks_[BUFFER_SIZE];
 	cv::Rect current_track_;
@@ -25,27 +26,30 @@ class Track
 public:
 
 
-
-	static unsigned long long generateID();
+	static unsigned int generateID();
 
 
 	explicit Track(const cv::Rect& currentTrack);
 
 	void setCurrentTrack(const cv::Rect& currentTrack);
+
 	cv::Rect getCurrentTrack() const;
 
-	int getId() const;
-	
+	unsigned int getId() const;
+
 	int isLongDetection() const;
 
 	bool incrementLostFrames();
+
 	void incrementDetectedFrames();
 
 	void update();
+
 	void update(const cv::Rect& rect);
 
 	std::array<cv::Rect, BUFFER_SIZE> getPrevTracks() const;
 
-	constexpr int getPrevTracksBufferSize() const;
+	static constexpr int getPrevTracksBufferSize();
 };
 
+#endif //VIDEOSYNOPSIS_TRACK_H

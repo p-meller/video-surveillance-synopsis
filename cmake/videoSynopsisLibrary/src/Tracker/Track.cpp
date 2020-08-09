@@ -1,25 +1,25 @@
 #include "Track.h"
 
-unsigned long long Track::id_counter_ = 0;
+unsigned int Track::id_counter_ = 0;
 
-constexpr int Track::getPrevTracksBufferSize() const
+constexpr int Track::getPrevTracksBufferSize()
 {
 	return BUFFER_SIZE;
 }
 
-unsigned long long Track::generateID()
+unsigned int Track::generateID()
 {
 	return id_counter_++;
 }
 
 Track::Track(const cv::Rect& currentTrack) :
-	current_track_(currentTrack),
-	trackId(Track::generateID()),
-	prevTrackZeroIndex(0),
-	lostDetectionFrames(0),
-	detectedFrames(1),
-	trackedFrames(1),
-	kalmanFilter({ currentTrack.x + currentTrack.width / 2, currentTrack.y + currentTrack.height })
+		current_track_(currentTrack),
+		trackId(Track::generateID()),
+		prevTrackZeroIndex(0),
+		lostDetectionFrames(0),
+		detectedFrames(1),
+		trackedFrames(1),
+		kalmanFilter({ currentTrack.x + currentTrack.width / 2, currentTrack.y + currentTrack.height })
 {
 }
 
@@ -35,7 +35,7 @@ cv::Rect Track::getCurrentTrack() const
 	return current_track_;
 }
 
-int Track::getId() const
+unsigned int Track::getId() const
 {
 	return trackId;
 }
@@ -74,7 +74,7 @@ void Track::update()
 
 void Track::update(const cv::Rect& rect)
 {
-	kalmanFilter.update({ rect.x + rect.width / 2,rect.y + rect.height / 2 }, true);
+	kalmanFilter.update({ rect.x + rect.width / 2, rect.y + rect.height / 2 }, true);
 
 	const cv::Point newPoint = kalmanFilter.getPrediction();
 
@@ -91,5 +91,5 @@ std::array<cv::Rect, Track::BUFFER_SIZE> Track::getPrevTracks() const
 	{
 		temp[i] = prev_tracks_[(i + prevTrackZeroIndex) % BUFFER_SIZE];
 	}
-	return  temp;
+	return temp;
 }

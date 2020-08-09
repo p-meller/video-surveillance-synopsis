@@ -7,47 +7,46 @@
 int main()
 {
 
-    Detector detector;
-    Tracker tracker;
+	Detector detector(false);
+	Tracker tracker;
 
-    cv::VideoCapture video("1.mp4");
+	cv::VideoCapture video("1.mp4");
 
-    int wait = 0;
-    int add = 20;
+	int wait = 0;
+	int add = 20;
 
-    int i = 0;
+	int i = 0;
 
-    while (video.isOpened())
-    {
-        cv::Mat frame;
-        video.read(frame);
+	while (video.isOpened())
+	{
+		cv::Mat frame;
+		video.read(frame);
 
-        detector.processFrame(frame);
-        if (i > 20)
-        {
-            tracker.processDetections(detector.getDetections());
-            tracker.drawTracks(frame);
-        }
-        for (auto&& element : detector.getDetections())
-        {
-            cv::rectangle(frame, element, { 0,255,0 });
-        }
+		detector.processFrame(frame);
+		if (i > 20)
+		{
+			tracker.processDetections(detector.getDetections());
+			tracker.drawTracks(frame);
+		}
+		for (auto&& element : detector.getDetections())
+		{
+			cv::rectangle(frame, element, { 0, 255, 0 });
+		}
 
-        cv::imshow("window", frame);
-        cv::imshow("mask", detector.getOutput());
-        int key = cv::waitKey(wait);
-        if (key == 'w')
-        {
-            wait += add;
-            add *= -1;
-        }
+		cv::imshow("window", frame);
+		cv::imshow("mask", detector.getOutput(DetectorOutputTypeEnum::DETECTIONS));
+		int key = cv::waitKey(wait);
+		if (key == 'w')
+		{
+			wait += add;
+			add *= -1;
+		}
 
-        printf("frameNum = %d, milliseconds = %3f\n", i, detector.Microseconds / 1000.0);
-        ++i;
-    }
+		++i;
+	}
 
 
-    std::cout << "Hello World!\n";
+	std::cout << "Hello World!\n";
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

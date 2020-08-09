@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(videoSynopsisConsole)
 
-find_package( OpenCV REQUIRED )
+find_package(OpenCV REQUIRED)
 
 add_executable(videoSynopsisConsole main.cpp)
 

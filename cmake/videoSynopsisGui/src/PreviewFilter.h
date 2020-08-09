@@ -11,10 +11,10 @@ class PreviewFilter : public QAbstractVideoFilter
 {
 Q_OBJECT
 public:
-    QVideoFilterRunnable *createFilterRunnable() override;
+	QVideoFilterRunnable* createFilterRunnable() override;
 
 signals:
-    void imageUpdate(const QImage& previewImage);
+	void imageUpdate(const QImage& previewImage);
 
 public slots:
 
@@ -23,12 +23,13 @@ public slots:
 class QCvPreviewFilterRunnable : public QVideoFilterRunnable
 {
 public:
-    explicit QCvPreviewFilterRunnable(PreviewFilter *creator);
-    QVideoFrame run(QVideoFrame *input, const QVideoSurfaceFormat &surfaceFormat, RunFlags flags) override;
+	explicit QCvPreviewFilterRunnable(PreviewFilter* creator);
+
+	QVideoFrame run(QVideoFrame* input, const QVideoSurfaceFormat& surfaceFormat, RunFlags flags) override;
 
 private:
-    PreviewFilter *filter;
-    std::unique_ptr<Detector> detector;
+	PreviewFilter* filter;
+	std::unique_ptr<Detector> detector;
 };
 
 #endif //VIDEOSYNOPSIS_PREVIEWFILTER_H

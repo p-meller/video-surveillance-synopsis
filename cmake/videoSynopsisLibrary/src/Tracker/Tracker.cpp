@@ -26,7 +26,7 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 		double minDistance = DBL_MAX;
 
 		cv::Rect detRect = detections[0];
-		int i;
+		int i = 0;
 		for (int j = 0; trackList.size() > j; ++j)
 		{
 			cv::Rect elRect = trackList[j].getCurrentTrack();
@@ -91,8 +91,8 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 	for (int i = 0; i < workersNum; ++i)
 	{
 		//	costMatrix[i].resize(currentDetectionsNum);
-		double* costMatrixRow = costMatrix.ptr<double>(i);
-		double* euclidCostMatrixRow = euclidCostMatrix.ptr<double>(i);
+		auto* costMatrixRow = costMatrix.ptr<double>(i);
+		auto* euclidCostMatrixRow = euclidCostMatrix.ptr<double>(i);
 		for (int j = 0; j < tasksNum; ++j)
 		{
 			cv::Rect workerRect;
@@ -126,26 +126,32 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 	// x[i][j] is an array of 0-1 variables, which will be 1
 	// if worker i is assigned to task j.
 	std::vector<std::vector<const operations_research::MPVariable*>> x(
-		workersNum, std::vector<const operations_research::MPVariable*>(tasksNum));
-	for (int i = 0; i < workersNum; ++i) {
-		for (int j = 0; j < tasksNum; ++j) {
+			workersNum, std::vector<const operations_research::MPVariable*>(tasksNum));
+	for (int i = 0; i < workersNum; ++i)
+	{
+		for (int j = 0; j < tasksNum; ++j)
+		{
 			x[i][j] = assignmentSolver->MakeIntVar(0, 1, "");
 		}
 	}
 
 	// Constraints
 	// Each worker is assigned to at most one task.
-	for (int i = 0; i < workersNum; ++i) {
+	for (int i = 0; i < workersNum; ++i)
+	{
 		operations_research::LinearExpr worker_sum;
-		for (int j = 0; j < tasksNum; ++j) {
+		for (int j = 0; j < tasksNum; ++j)
+		{
 			worker_sum += x[i][j];
 		}
 		assignmentSolver->MakeRowConstraint(worker_sum <= 1.0);
 	}
 	// Each task is assigned to exactly one worker.
-	for (int j = 0; j < tasksNum; ++j) {
+	for (int j = 0; j < tasksNum; ++j)
+	{
 		operations_research::LinearExpr task_sum;
-		for (int i = 0; i < workersNum; ++i) {
+		for (int i = 0; i < workersNum; ++i)
+		{
 			task_sum += x[i][j];
 		}
 		assignmentSolver->MakeRowConstraint(task_sum == 1.0);
@@ -153,9 +159,11 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 
 	// Objective.
 	operations_research::MPObjective* const objective = assignmentSolver->MutableObjective();
-	for (int i = 0; i < workersNum; ++i) {
-		double* costMatrixRow = costMatrix.ptr<double>(i);
-		for (int j = 0; j < tasksNum; ++j) {
+	for (int i = 0; i < workersNum; ++i)
+	{
+		auto* costMatrixRow = costMatrix.ptr<double>(i);
+		for (int j = 0; j < tasksNum; ++j)
+		{
 			objective->SetCoefficient(x[i][j], costMatrixRow[j]);
 		}
 	}
@@ -168,7 +176,8 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 	// Print solution.
 	// Check that the problem has a feasible solution.
 	if (operations_research::MPSolver::OPTIMAL != result_status &
-		operations_research::MPSolver::FEASIBLE != result_status) {
+		operations_research::MPSolver::FEASIBLE != result_status)
+	{
 		//LOG(WARNING) << "No solution found.";
 	}
 
@@ -183,16 +192,16 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 		assignedTracks.resize(tasksNum, -1);
 	}
 
-	double* costMatrixRow = costMatrix.ptr<double>(0);
-	double* euclidCostMatrixRow = euclidCostMatrix.ptr<double>(0);
-
-	for (int i = 0; i < workersNum; ++i) {
-		for (int j = 0; j < tasksNum; ++j) {
+	for (int i = 0; i < workersNum; ++i)
+	{
+		for (int j = 0; j < tasksNum; ++j)
+		{
 
 
 			// Test if x[i][j] is 0 or 1 (with tolerance for floating point
 			// arithmetic).
-			if (x[i][j]->solution_value() > 0.5) {
+			if (x[i][j]->solution_value() > 0.5)
+			{
 
 
 				if (assignForTracks)
@@ -220,7 +229,7 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 	}
 
 	assignmentSolver->Clear();
-	return  assignedTracks;
+	return assignedTracks;
 }
 
 void Tracker::removeTracks(const std::vector<int>& tracksToRemove)
@@ -231,7 +240,8 @@ void Tracker::removeTracks(const std::vector<int>& tracksToRemove)
 	}
 }
 
-Tracker::Tracker() : assignmentSolver(new operations_research::MPSolver("simple_mip_program", operations_research::MPSolver::GLOP_LINEAR_PROGRAMMING))
+Tracker::Tracker() : assignmentSolver(
+		new operations_research::MPSolver("simple_mip_program", operations_research::MPSolver::GLOP_LINEAR_PROGRAMMING))
 {
 	trackList.reserve(maxSimultaneousTracks);
 }
@@ -245,6 +255,10 @@ void Tracker::processDetections(const std::vector<cv::Rect>& detections)
 {
 	if (trackList.empty())
 	{
+		if (detections.empty())
+		{
+			return;
+		}
 		for (auto&& track : detections)
 		{
 			trackList.emplace_back(Track(track));
@@ -301,12 +315,14 @@ void Tracker::drawTracks(cv::Mat& img)
 	{
 		if (track.isLongDetection())
 		{
-			cv::putText(img, std::to_string(track.getId()), { track.getCurrentTrack().x ,track.getCurrentTrack().y }, cv::FONT_HERSHEY_SIMPLEX, 1, { 255,0,0 });
+			cv::putText(img, std::to_string(track.getId()), { track.getCurrentTrack().x, track.getCurrentTrack().y },
+					cv::FONT_HERSHEY_SIMPLEX, 1, { 255, 0, 0 });
 			cv::rectangle(img, track.getCurrentTrack(), { 255, 0, 0 });
 		}
 		else
 		{
-			cv::putText(img, std::to_string(track.getId()), { track.getCurrentTrack().x ,track.getCurrentTrack().y }, cv::FONT_HERSHEY_SIMPLEX, 1, { 0,0,255 });
+			cv::putText(img, std::to_string(track.getId()), { track.getCurrentTrack().x, track.getCurrentTrack().y },
+					cv::FONT_HERSHEY_SIMPLEX, 1, { 0, 0, 255 });
 			cv::rectangle(img, track.getCurrentTrack(), { 0, 0, 255 });
 		}
 	}

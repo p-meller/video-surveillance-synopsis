@@ -1,4 +1,6 @@
-#pragma once
+#ifndef VIDEOSYNOPSIS_TRACKER_H
+#define VIDEOSYNOPSIS_TRACKER_H
+
 #include <vector>
 #include <opencv2/core.hpp>
 
@@ -27,10 +29,12 @@ class Tracker
 	operations_research::MPSolver* assignmentSolver;
 
 	std::vector<int> assignTracks(const std::vector<cv::Rect>& detections);
+
 	void removeTracks(const std::vector<int>& tracksToRemove);
 
 public:
 	Tracker();
+
 	~Tracker();
 
 	void processDetections(const std::vector<cv::Rect>& detections);
@@ -38,3 +42,4 @@ public:
 	void drawTracks(cv::Mat& img);
 };
 
+#endif //VIDEOSYNOPSIS_TRACKER_H

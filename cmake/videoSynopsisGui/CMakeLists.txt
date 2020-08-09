@@ -13,10 +13,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(QT_QMLTYPES)
-set(QML_IMPORT_NAME = com.videoSynopsisGui.classes)
-set(QML_IMPORT_MAJOR_VERSION = 1)
-
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
 # Check http://doc.qt.io/qt-5/deployment-android.html for more information.
 # They need to be set before the find_package(Qt5 ...) call.
@@ -30,7 +26,7 @@ set(QML_IMPORT_MAJOR_VERSION = 1)
 #    endif()
 #endif()
 
-find_package(Qt5 COMPONENTS Core Multimedia Quick REQUIRED)
+find_package(Qt5 COMPONENTS Core Multimedia MultimediaWidgets Quick MultimediaQuick REQUIRED)
 
 if (ANDROID)
     add_library(videoSynopsisGui SHARED
@@ -52,5 +48,5 @@ target_include_directories(videoSynopsisGui PRIVATE src ../videoSynopsisLibrary/
 target_compile_definitions(videoSynopsisGui
         PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(videoSynopsisGui
-        PRIVATE Qt5::Core Qt5::Multimedia Qt5::Quick ${OpenCV_LIBS} videoSynopsisLibrary)
+        PRIVATE Qt5::Core Qt5::Multimedia Qt5::MultimediaWidgets Qt5::Quick Qt5::MultimediaQuick ${OpenCV_LIBS} videoSynopsisLibrary)
 
