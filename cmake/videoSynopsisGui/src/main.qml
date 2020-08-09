@@ -54,35 +54,7 @@ ApplicationWindow {
     height: 720
     title: qsTr("Video synopsis")
 
-    PreviewFilter {
-        id: testFilter
-        onImageUpdate: {
-            imageProvider.updatePreviewImage(previewImage)
-            previewImg.source = ""
-            previewImg.source = "image://previewprovider/preview"
-        }
-    }
 
-    FileDialog {
-        id: fileDialog
-        title: "Please choose a file"
-        folder: shortcuts.home
-        nameFilters: ["video files (*.mp4 *.mkv *.avi)", "All files (*)"]
-        onAccepted: {
-            mediaPlayer.source = fileDialog.fileUrl
-            console.log("You chose: " + fileDialog.fileUrl)
-            //Qt.quit()
-        }
-        onRejected: {
-            console.log("Canceled")
-            //Qt.quit()
-        }
-    }
-
-    MediaPlayer {
-        id: mediaPlayer
-        //source: "file:///home/piotr/git/video-surveillance-synopsis/cmake/cmake-build-release/videoSynopsisGui/1.mp4"
-    }
 
     //    ShaderEffect
     //    {
@@ -105,73 +77,9 @@ ApplicationWindow {
             GroupBox {
                 anchors.fill: parent
                 padding: 5
-                ColumnLayout {
+                PreviewComponent{
                     anchors.fill: parent
-
-                    RowLayout{
-                        ColumnLayout {
-                            Layout.fillHeight: true
-                            Layout.fillWidth: true
-
-                            VideoOutput {
-                                id: video
-                                Layout.fillHeight: true
-                                Layout.fillWidth: true
-                                source: mediaPlayer
-                                autoOrientation: false
-
-                                filters: [testFilter]
-                            }
-
-                            Image {
-                                Layout.fillHeight: true
-                                Layout.fillWidth: true
-                                fillMode: Image.PreserveAspectFit
-                                cache: false
-                                id: previewImg
-                                //source: "image://previewProvider/preview"
-                            }
-                        }
-                        ColumnLayout {
-                            Layout.fillHeight: true
-                            Layout.fillWidth: true
-                            ComboBox{
-                                id: combo
-                                Layout.preferredWidth: 250
-                                model: outputTypeList
-                                onCurrentIndexChanged: {
-                                    testFilter.setOutputType(currentIndex)
-                                }
-                            }
-                        }
-
-                    }
-
-
-                    RowLayout {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-
-                        Button {
-                            id: btnFileChooser
-                            text: 'Select video'
-                            onClicked: {
-                                fileDialog.open()
-                            }
-                        }
-
-                        Button {
-                            id: btnPlayVideo
-                            text: 'play'
-                            onClicked: {
-                                if (mediaPlayer.playing()) {
-                                    mediaPlayer.pause()
-                                } else {
-                                    mediaPlayer.play()
-                                }
-                            }
-                        }
-                    }
+                    id: previewComponent
                 }
             }
         }

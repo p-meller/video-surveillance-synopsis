@@ -9,11 +9,12 @@ find_package(Boost COMPONENTS container REQUIRED)
 
 add_library(videoSynopsisLibrary STATIC
         src/Detector/Detector.cpp
+        src/Detector/DetectorOutputTypeEnum.h
+        src/Detector/DetectorSettings.h
         src/Tracker/KalmanFilter.cpp
         src/Tracker/Track.cpp
         src/Tracker/Tracker.cpp
-        src/Detector/DetectorSettings.cpp
-        src/Detector/DetectorOutputTypeEnum.h)
+        )
 
 
 IF (WIN32)

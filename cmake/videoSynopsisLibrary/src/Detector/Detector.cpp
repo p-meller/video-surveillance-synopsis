@@ -12,7 +12,7 @@ void Detector::getMaskByContours(const cv::Mat& input)
 	for (int i = 0; i < contourList.size(); i++)
 	{
 		double area = cv::contourArea(contourList[i]);
-		if (area > 20)
+		if (area > settings_.ContourMinArea)
 		{
 			cv::drawContours(this->contours_, contourList, i, cv::Scalar(255), -1);
 		}
@@ -20,7 +20,7 @@ void Detector::getMaskByContours(const cv::Mat& input)
 
 	cv::Mat fiiltered;
 
-	auto structEleme3 = cv::getStructuringElement(cv::MorphShapes::MORPH_ELLIPSE, cv::Size(35, 35));
+	auto structEleme3 = cv::getStructuringElement(cv::MorphShapes::MORPH_ELLIPSE, cv::Size(settings_.ContourMorhpCloseSize, settings_.ContourMorhpCloseSize));
 	cv::morphologyEx(this->contours_, fiiltered, cv::MorphTypes::MORPH_CLOSE, structEleme3);
 
 	mask_ = cv::Mat::zeros(input.size(), CV_8UC3);
@@ -36,7 +36,7 @@ void Detector::getMaskByContours(const cv::Mat& input)
 	for (int i = 0; i < contourList.size(); i++)
 	{
 		double area = cv::contourArea(contourList[i]);
-		if (area > 20)
+		if (area > settings_.ContourMinArea)
 		{
 			detections_.emplace_back(cv::boundingRect(contourList[i]));
 			if (forPreview_)
@@ -51,7 +51,7 @@ void Detector::getMaskByContours(const cv::Mat& input)
 Detector::Detector(bool forPreview)
 {
 	//bgSubtractor = cv::cuda::createBackgroundSubtractorMOG2();
-	bgSubtractor_ = cv::createBackgroundSubtractorMOG2(500, 64);
+	bgSubtractor_ = cv::createBackgroundSubtractorMOG2(settings_.Mog2History, settings_.Mog2VarTreshold);
 	detections_.reserve(50);
 	forPreview_ = forPreview;
 }
@@ -66,8 +66,8 @@ void Detector::processFrame(const cv::Mat& inputFrame)
 	cv::Mat blur;
 	cv::medianBlur(threshold, blur, 5);
 
-	auto structEleme = cv::getStructuringElement(cv::MorphShapes::MORPH_RECT, cv::Size(13, 13));
-	auto structEleme2 = cv::getStructuringElement(cv::MorphShapes::MORPH_ELLIPSE, cv::Size(15, 15));
+	auto structEleme = cv::getStructuringElement(cv::MorphShapes::MORPH_RECT, cv::Size(settings_.FgMorphCloseSize, settings_.FgMorphCloseSize));
+	auto structEleme2 = cv::getStructuringElement(cv::MorphShapes::MORPH_ELLIPSE, cv::Size(settings_.FgMorphOpenSize, settings_.FgMorphOpenSize));
 
 	cv::Mat morph1;
 
@@ -101,6 +101,16 @@ const cv::Mat& Detector::getOutput(DetectorOutputTypeEnum outputType) const
 const std::vector<cv::Rect>& Detector::getDetections() const
 {
 	return detections_;
+}
+
+const DetectorSettings& Detector::GetSettings() const
+{
+	return settings_;
+}
+
+void Detector::SetSettings(const DetectorSettings& settings)
+{
+	Detector::settings_ = settings;
 }
 
 bool Detector::isForPreview() const

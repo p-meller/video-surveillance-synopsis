@@ -15,13 +15,17 @@ QVideoFilterRunnable* PreviewFilter::createFilterRunnable()
 	return new QCvPreviewFilterRunnable(this);
 }
 
-void PreviewFilter::setOutputType(int type)
+void PreviewFilter::setFgOutputFiltered(bool filtered)
 {
-	outputType = DetectorOutputTypeEnum(DetectorOutputTypeEnum::Value(type));
+	this->previewFgFiltered = filtered;
 }
 
-QVideoFrame
-QCvPreviewFilterRunnable::run(QVideoFrame* input, const QVideoSurfaceFormat& surfaceFormat, RunFlags flags)
+void PreviewFilter::setContoursOutputFiltered(bool filtered)
+{
+	this->previewContoursFiltered = filtered;
+}
+
+QVideoFrame QCvPreviewFilterRunnable::run(QVideoFrame* input, const QVideoSurfaceFormat& surfaceFormat, RunFlags flags)
 {
 	Q_UNUSED(flags);
 	input->map(QAbstractVideoBuffer::ReadOnly);
@@ -36,20 +40,48 @@ QCvPreviewFilterRunnable::run(QVideoFrame* input, const QVideoSurfaceFormat& sur
 			cv::Mat picBGR;
 			cv::cvtColor(picYUV420, picBGR, cv::COLOR_YUV2BGR_I420);
 			detector->processFrame(picBGR);
-			cv::Mat outputFrame = detector->getOutput(filter->outputType);
 
-			//cv::cvtColor(outputFrame, picYUV420, cv::COLOR_BGR2YUV_I420);
-
-			if (outputFrame.channels() == 1)
 			{
-				cv::cvtColor(outputFrame, outputFrame, cv::COLOR_GRAY2BGR);
+				DetectorOutputTypeEnum outputType(
+						this->filter->previewFgFiltered ? DetectorOutputTypeEnum::BG_SUBTRACTION_FILTERED
+														: DetectorOutputTypeEnum::BG_SUBTRACTION);
+				cv::Mat outputFrame = detector->getOutput(outputType);
+				if (outputFrame.channels() == 1)
+				{
+					cv::cvtColor(outputFrame, outputFrame, cv::COLOR_GRAY2BGR);
+				}
+				QImage image = QImage((const uchar*)outputFrame.data, outputFrame.cols, outputFrame.rows,
+						outputFrame.step,
+						QImage::Format_BGR888);
+				emit filter->fgImageUpdate(image.copy());
+			}
+			{
+				DetectorOutputTypeEnum outputType(
+						this->filter->previewContoursFiltered ? DetectorOutputTypeEnum::CONTOURS_FILTERED
+															  : DetectorOutputTypeEnum::CONTOURS);
+				cv::Mat outputFrame = detector->getOutput(outputType);
+				if (outputFrame.channels() == 1)
+				{
+					cv::cvtColor(outputFrame, outputFrame, cv::COLOR_GRAY2BGR);
+				}
+				QImage image = QImage((const uchar*)outputFrame.data, outputFrame.cols, outputFrame.rows,
+						outputFrame.step,
+						QImage::Format_BGR888);
+				emit filter->contoursImageUpdate(image.copy());
+			}
+			{
+				DetectorOutputTypeEnum outputType(DetectorOutputTypeEnum::DETECTIONS);
+				cv::Mat outputFrame = detector->getOutput(outputType);
+				if (outputFrame.channels() == 1)
+				{
+					cv::cvtColor(outputFrame, outputFrame, cv::COLOR_GRAY2BGR);
+				}
+				QImage image = QImage((const uchar*)outputFrame.data, outputFrame.cols, outputFrame.rows,
+						outputFrame.step,
+						QImage::Format_BGR888);
+				emit filter->detectionsImageUpdate(image.copy());
 			}
 
-			QImage image = QImage((const uchar*)outputFrame.data, outputFrame.cols, outputFrame.rows,
-					outputFrame.step,
-					QImage::Format_BGR888);
-
-			emit filter->imageUpdate(image.copy());
 		}
 
 	}

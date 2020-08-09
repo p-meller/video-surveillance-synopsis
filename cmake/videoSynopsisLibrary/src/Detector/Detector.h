@@ -5,6 +5,7 @@
 #include <opencv2/video/background_segm.hpp>
 #include <opencv2/features2d.hpp>
 #include "DetectorOutputTypeEnum.h"
+#include "DetectorSettings.h"
 
 class Detector
 {
@@ -16,6 +17,8 @@ class Detector
 	cv::Mat contoursFiltered_;
 	cv::Mat mask_;
 	cv::Mat roi_;
+
+	DetectorSettings settings_;
 
 	bool forPreview_;
 
@@ -30,9 +33,14 @@ public:
 
 	const std::vector<cv::Rect>& getDetections() const;
 
+	const DetectorSettings& GetSettings() const;
+
+	void SetSettings(const DetectorSettings& settings);
+
 	bool isForPreview() const;
 
 	void setForPreview(bool forPreview);
+
 };
 
 #endif //VIDEOSYNOPSIS_DETECTOR_H

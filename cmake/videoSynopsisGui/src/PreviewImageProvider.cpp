@@ -7,10 +7,32 @@ PreviewImageProvider::PreviewImageProvider() : QQuickImageProvider(QQuickImagePr
 
 QImage PreviewImageProvider::requestImage(const QString& id, QSize* size, const QSize& requestedSize)
 {
-	return this->previewImage_;
+	if (id == "fg")
+	{
+		return this->previewFgImage_;
+	}
+	else if (id == "contours")
+	{
+		return this->previewContoursImage_;
+	}
+	else if (id == "detections")
+	{
+		return this->previewDetectionsImage_;
+	}
+	return QImage();
 }
 
-void PreviewImageProvider::updatePreviewImage(const QImage& previewImage)
+void PreviewImageProvider::updateFgImage(const QImage& previewImage)
 {
-	this->previewImage_ = previewImage;
+	this->previewFgImage_ = previewImage;
+}
+
+void PreviewImageProvider::updateContoursImage(const QImage& previewImage)
+{
+	this->previewContoursImage_ = previewImage;
+}
+
+void PreviewImageProvider::updateDetectionsImage(const QImage& previewImage)
+{
+	this->previewDetectionsImage_ = previewImage;
 }

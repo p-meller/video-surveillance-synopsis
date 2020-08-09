@@ -7,7 +7,9 @@
 class PreviewImageProvider : public QObject, public QQuickImageProvider
 {
 Q_OBJECT
-	QImage previewImage_;
+	QImage previewFgImage_;
+	QImage previewContoursImage_;
+	QImage previewDetectionsImage_;
 
 public:
 	PreviewImageProvider();
@@ -15,8 +17,9 @@ public:
 	QImage requestImage(const QString& id, QSize* size, const QSize& requestedSize) override;
 
 public slots:
-
-	void updatePreviewImage(const QImage& previewImage);
+	void updateFgImage(const QImage& previewImage);
+	void updateContoursImage(const QImage& previewImage);
+	void updateDetectionsImage(const QImage& previewImage);
 };
 
 

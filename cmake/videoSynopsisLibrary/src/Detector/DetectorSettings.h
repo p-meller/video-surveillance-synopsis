@@ -5,8 +5,17 @@
 struct DetectorSettings
 {
 	//bg_subtractor
-	int MOG2_HISTORY = 500;
-	double MOG2_VAR_THRESHOLD = 16;
+	int Mog2History = 500;
+	double Mog2VarTreshold = 64;
+
+	//bg_filter
+	int FgMedianBlurSize = 5;
+	int FgMorphCloseSize = 13;
+	int FgMorphOpenSize = 15;
+
+	//contour_filter
+	int ContourMinArea = 20;
+	int ContourMorhpCloseSize = 35;
 };
 
 

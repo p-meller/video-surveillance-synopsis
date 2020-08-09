@@ -13,14 +13,18 @@ class PreviewFilter : public QAbstractVideoFilter
 {
 Q_OBJECT
 public:
-	DetectorOutputTypeEnum outputType;
+	bool previewFgFiltered;
+	bool previewContoursFiltered;
 	QVideoFilterRunnable* createFilterRunnable() override;
 
 signals:
-	void imageUpdate(const QImage& previewImage);
+	void fgImageUpdate(const QImage& previewImage);
+	void contoursImageUpdate(const QImage& previewImage);
+	void detectionsImageUpdate(const QImage& previewImage);
 
 public slots:
-	void setOutputType(int type);
+	void setFgOutputFiltered(bool filtered);
+	void setContoursOutputFiltered(bool filtered);
 };
 
 class QCvPreviewFilterRunnable : public QVideoFilterRunnable
