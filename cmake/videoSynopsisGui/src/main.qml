@@ -90,20 +90,10 @@ ApplicationWindow {
                 anchors.fill: parent
                 padding: 5
 
-                Label {
+                SynopsisComponent{
                     anchors.fill: parent
-                    horizontalAlignment: Qt.AlignHCenter
-                    verticalAlignment: Qt.AlignVCenter
-                    wrapMode: Label.Wrap
-
-                    text: "This project uses haarcascade_frontalface_default.xml file for the classifier, " + "which is included in the default OpenCV installation. Note that the quality of the "
-                          + "classifier totally depends on how well it trained.<br>"
-                          + "Refer to <a href=\"http://amin-ahmadi.com/cascade-trainer-gui\">http://amin-ahmadi.com/cascade-trainer-gui</a> on how " + "to train your classifiers."
-
-                    onLinkActivated: {
-                        Qt.openUrlExternally(link)
-                    }
                 }
+
             }
         }
     }
