@@ -19,12 +19,6 @@ int main(int argc, char* argv[])
 	QQmlApplicationEngine engine;
 	PreviewImageProvider* imageProvider = new PreviewImageProvider;
 
-	QStringList outputTypeList;
-	for(auto && type : DetectorOutputTypeEnum::toArray()){
-		outputTypeList.append(QString::fromStdString(type.toString()));
-	}
-
-    engine.rootContext()->setContextProperty("outputTypeList", outputTypeList);
 	engine.rootContext()->setContextProperty("imageProvider", imageProvider);
 	engine.addImageProvider(QLatin1String("previewprovider"), imageProvider);
 	const QUrl url(QStringLiteral("qrc:/main.qml"));

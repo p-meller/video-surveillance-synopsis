@@ -49,6 +49,14 @@ Item {
         }
     }
 
+    //    ButtonGroup {
+    //        buttons: fgToShow.children
+    //    }
+
+    //    ButtonGroup {
+    //        buttons: contoursToShow.children
+    //    }
+
     RowLayout{
         anchors.fill: parent
 
@@ -114,21 +122,21 @@ Item {
 
                 Button {
                     id: btnPlayVideo
-                    text: 'play'
+                    icon.source: "qrc:/icons/play.svg"
                     onClicked: {
                         mediaPlayer.play()
                     }
                 }
                 Button {
                     id: btnPauseVideo
-                    text: 'pause'
+                    icon.source: "qrc:/icons/pause.svg"
                     onClicked: {
                         mediaPlayer.pause()
                     }
                 }
                 Button {
                     id: btnStopVideo
-                    text: 'stop'
+                    icon.source: "qrc:/icons/stop.svg"
                     onClicked: {
                         mediaPlayer.stop()
                         videoSlider.value = 0;
@@ -153,19 +161,183 @@ Item {
         GroupBox{
             Layout.preferredWidth: 400
             Layout.fillHeight: true
-            ColumnLayout {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                ComboBox{
-                    id: combo
-                    Layout.preferredWidth: 250
-                    model: outputTypeList
+
+            ScrollView{
+                clip: true
+                anchors.fill: parent
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+
+                ColumnLayout {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    GroupBox{
+                        Layout.fillWidth: true
+                        label: Label {
+                            text: "Background subtraction settings"
+                        }
+                        GridLayout{
+                            x: 0
+                            y: 0
+                            Layout.fillWidth: true
+                            columns: 2
+
+                            Label {
+                                text: "MOG2 history"
+                            }
+
+                            Slider {
+                                id: settingsBgHistory
+                                Layout.fillWidth: true
+                                value: 500
+                                from: 0
+                                to: 1000
+                                stepSize: 1
+                            }
+
+                            Label {
+                                text: "MOG2 var threshold"
+                            }
+
+                            Slider {
+                                id: settingsBgVarThreshold
+                                Layout.fillWidth: true
+                                value: 32
+                                from: 0
+                                to: 128
+                                stepSize: 0.1
+                            }
+                        }
+
+                    }
+
+                    GroupBox{
+                        Layout.fillWidth: true
+                        label: Label {
+                            text: "Foreground mask filtering"
+                        }
+
+                        ColumnLayout{
+                            RowLayout {
+                                id: fgToShow
+                                Layout.fillWidth: true
+                                RadioButton {
+                                    checked: true
+                                    text: qsTr("Show raw")
+                                }
+                                RadioButton {
+                                    text: qsTr("Show Filtered")
+                                }
+                            }
+
+                            GridLayout{
+                                Layout.fillWidth: true
+                                columns: 2
+
+                                Label {
+                                    text: "Median filter size"
+                                }
+
+                                Slider {
+                                    id: settingsFgMedianSize
+                                    Layout.fillWidth: true
+                                    value: 3
+                                    from: 3
+                                    to: 41
+                                    stepSize: 2
+                                }
+
+                                Label {
+                                    text: "Morph close size"
+                                }
+
+                                Slider {
+                                    id: settingsFgMorphCloseSize
+                                    Layout.fillWidth: true
+                                    value: 3
+                                    from: 3
+                                    to: 41
+                                    stepSize: 2
+                                }
+
+                                Label {
+                                    text: "Morph open size"
+                                }
+
+                                Slider {
+                                    id: settingsFgMorphOpenSize
+                                    Layout.fillWidth: true
+                                    value: 3
+                                    from: 3
+                                    to: 41
+                                    stepSize: 2
+                                }
+                            }
+                        }
+
+                    }
+
+                    GroupBox{
+                        Layout.fillWidth: true
+                        label: Label {
+                            text: "Contours filtering"
+                        }
+
+                        ColumnLayout{
+                            Layout.fillWidth: true
+                            RowLayout {
+                                id: contoursToShow
+                                Layout.fillWidth: true
+                                RadioButton {
+                                    checked: true
+                                    text: qsTr("Show raw")
+                                }
+                                RadioButton {
+                                    text: qsTr("Show Filtered")
+                                }
+                            }
+
+                            GridLayout{
+                                Layout.fillWidth: true
+                                columns: 2
+                                Label {
+                                    text: "Min contour area"
+                                }
+
+                                Slider {
+                                    id: settingsContourMinArea
+                                    Layout.fillWidth: true
+                                    value: 0
+                                    from: 0
+                                    to: 100
+                                    stepSize: 1
+                                }
+
+                                Label {
+                                    text: "Morph close size"
+                                }
+
+                                Slider {
+                                    id: settingsContourMorphCloseSize
+                                    Layout.fillWidth: true
+                                    value: 30
+                                    from: 3
+                                    to: 81
+                                    stepSize: 2
+                                }
+
+                            }
+                        }
+                    }
 
                 }
             }
         }
     }
 }
+
 
 
 /*##^##
