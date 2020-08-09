@@ -5,19 +5,22 @@
 #include <QtMultimedia/QAbstractVideoFilter>
 #include <memory>
 
+#include "DetectorOutputTypeEnum.h"
+
 class Detector;
 
 class PreviewFilter : public QAbstractVideoFilter
 {
 Q_OBJECT
 public:
+	DetectorOutputTypeEnum outputType;
 	QVideoFilterRunnable* createFilterRunnable() override;
 
 signals:
 	void imageUpdate(const QImage& previewImage);
 
 public slots:
-
+	void setOutputType(int type);
 };
 
 class QCvPreviewFilterRunnable : public QVideoFilterRunnable

@@ -15,6 +15,11 @@ QVideoFilterRunnable* PreviewFilter::createFilterRunnable()
 	return new QCvPreviewFilterRunnable(this);
 }
 
+void PreviewFilter::setOutputType(int type)
+{
+	outputType = DetectorOutputTypeEnum(DetectorOutputTypeEnum::Value(type));
+}
+
 QVideoFrame
 QCvPreviewFilterRunnable::run(QVideoFrame* input, const QVideoSurfaceFormat& surfaceFormat, RunFlags flags)
 {
@@ -31,9 +36,14 @@ QCvPreviewFilterRunnable::run(QVideoFrame* input, const QVideoSurfaceFormat& sur
 			cv::Mat picBGR;
 			cv::cvtColor(picYUV420, picBGR, cv::COLOR_YUV2BGR_I420);
 			detector->processFrame(picBGR);
-            cv::Mat outputFrame = detector->getOutput(DetectorOutputTypeEnum::DETECTIONS);
+			cv::Mat outputFrame = detector->getOutput(filter->outputType);
 
 			//cv::cvtColor(outputFrame, picYUV420, cv::COLOR_BGR2YUV_I420);
+
+			if (outputFrame.channels() == 1)
+			{
+				cv::cvtColor(outputFrame, outputFrame, cv::COLOR_GRAY2BGR);
+			}
 
 			QImage image = QImage((const uchar*)outputFrame.data, outputFrame.cols, outputFrame.rows,
 					outputFrame.step,

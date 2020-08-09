@@ -108,28 +108,45 @@ ApplicationWindow {
                 ColumnLayout {
                     anchors.fill: parent
 
-                    ColumnLayout {
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        VideoOutput {
-                            id: video
+                    RowLayout{
+                        ColumnLayout {
                             Layout.fillHeight: true
                             Layout.fillWidth: true
-                            source: mediaPlayer
-                            autoOrientation: false
 
-                            filters: [testFilter]
+                            VideoOutput {
+                                id: video
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
+                                source: mediaPlayer
+                                autoOrientation: false
+
+                                filters: [testFilter]
+                            }
+
+                            Image {
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
+                                fillMode: Image.PreserveAspectFit
+                                cache: false
+                                id: previewImg
+                                //source: "image://previewProvider/preview"
+                            }
                         }
-
-                        Image {
+                        ColumnLayout {
                             Layout.fillHeight: true
                             Layout.fillWidth: true
-                            fillMode: Image.PreserveAspectFit
-                            cache: false
-                            id: previewImg
-                            //source: "image://previewProvider/preview"
+                            ComboBox{
+                                id: combo
+                                Layout.preferredWidth: 250
+                                model: outputTypeList
+                                onCurrentIndexChanged: {
+                                    testFilter.setOutputType(currentIndex)
+                                }
+                            }
                         }
+
                     }
+
 
                     RowLayout {
                         Layout.alignment: Qt.AlignHCenter

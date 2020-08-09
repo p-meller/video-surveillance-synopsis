@@ -7,7 +7,7 @@
 class PreviewImageProvider : public QObject, public QQuickImageProvider
 {
 Q_OBJECT
-	QImage previewImage;
+	QImage previewImage_;
 
 public:
 	PreviewImageProvider();

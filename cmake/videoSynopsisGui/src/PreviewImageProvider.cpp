@@ -7,10 +7,10 @@ PreviewImageProvider::PreviewImageProvider() : QQuickImageProvider(QQuickImagePr
 
 QImage PreviewImageProvider::requestImage(const QString& id, QSize* size, const QSize& requestedSize)
 {
-	return this->previewImage;
+	return this->previewImage_;
 }
 
 void PreviewImageProvider::updatePreviewImage(const QImage& previewImage)
 {
-	this->previewImage = previewImage;
+	this->previewImage_ = previewImage;
 }
