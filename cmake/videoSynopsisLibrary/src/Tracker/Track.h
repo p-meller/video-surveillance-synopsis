@@ -13,20 +13,22 @@ class Track
 
 	static unsigned int id_counter_;
 
-	cv::Rect prev_tracks_[BUFFER_SIZE];
+	//cv::Rect prev_tracks_[BUFFER_SIZE];
+	std::vector<cv::Rect> prev_tracks_;
 	cv::Rect current_track_;
-	unsigned long long trackId;
-	unsigned int prevTrackZeroIndex;
+	int trackId;
+	//unsigned int prevTrackZeroIndex;
 	int lostDetectionFrames;
 	int detectedFrames;
 	int trackedFrames;
+	bool valid;
 
 	KalmanFilter kalmanFilter;
 
 public:
 
 
-	static unsigned int generateID();
+	static int generateID();
 
 
 	explicit Track(const cv::Rect& currentTrack);
@@ -35,7 +37,7 @@ public:
 
 	cv::Rect getCurrentTrack() const;
 
-	unsigned int getId() const;
+	int getId() const;
 
 	int isLongDetection() const;
 
@@ -47,9 +49,11 @@ public:
 
 	void update(const cv::Rect& rect);
 
-	std::array<cv::Rect, BUFFER_SIZE> getPrevTracks() const;
+	const std::vector<cv::Rect>& getPrevTracks() const;
 
 	static constexpr int getPrevTracksBufferSize();
+
+	bool isValid() const;
 };
 
 #endif //VIDEOSYNOPSIS_TRACK_H

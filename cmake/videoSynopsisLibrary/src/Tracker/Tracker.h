@@ -30,14 +30,16 @@ class Tracker
 
 	std::vector<int> assignTracks(const std::vector<cv::Rect>& detections);
 
+	bool saveToDb_;
+	int frame;
 	void removeTracks(const std::vector<int>& tracksToRemove);
 
 public:
-	Tracker();
+	explicit Tracker(bool saveToDb = false);
 
 	~Tracker();
 
-	void processDetections(const std::vector<cv::Rect>& detections);
+	void processDetections(const std::vector<cv::Rect>& detections, int currentFrame=-1);
 
 	void drawTracks(cv::Mat& img);
 };

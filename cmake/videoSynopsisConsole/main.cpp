@@ -8,7 +8,7 @@ int main()
 {
 
 	Detector detector(false);
-	Tracker tracker;
+	Tracker tracker(false);
 
 	cv::VideoCapture video("1.mp4");
 
@@ -21,11 +21,15 @@ int main()
 	{
 		cv::Mat frame;
 		video.read(frame);
+		if (frame.empty())
+		{
+			break;
+		}
 
 		detector.processFrame(frame);
 		if (i > 20)
 		{
-			tracker.processDetections(detector.getDetections());
+			tracker.processDetections(detector.getDetections(), i);
 			tracker.drawTracks(frame);
 		}
 		for (auto&& element : detector.getDetections())
@@ -33,8 +37,8 @@ int main()
 			cv::rectangle(frame, element, { 0, 255, 0 });
 		}
 
-		cv::imshow("window", frame);
-		cv::imshow("mask", detector.getOutput(DetectorOutputTypeEnum::DETECTIONS));
+		cv::imshow("input", frame);
+		cv::imshow("roi", detector.getOutput(DetectorOutputTypeEnum::DETECTIONS));
 		int key = cv::waitKey(wait);
 		if (key == 'w')
 		{

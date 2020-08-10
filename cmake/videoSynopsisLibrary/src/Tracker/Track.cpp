@@ -7,7 +7,7 @@ constexpr int Track::getPrevTracksBufferSize()
 	return BUFFER_SIZE;
 }
 
-unsigned int Track::generateID()
+int Track::generateID()
 {
 	return id_counter_++;
 }
@@ -15,19 +15,22 @@ unsigned int Track::generateID()
 Track::Track(const cv::Rect& currentTrack) :
 		current_track_(currentTrack),
 		trackId(Track::generateID()),
-		prevTrackZeroIndex(0),
+		//prevTrackZeroIndex(0),
 		lostDetectionFrames(0),
 		detectedFrames(1),
 		trackedFrames(1),
+		valid(false),
 		kalmanFilter({ currentTrack.x + currentTrack.width / 2, currentTrack.y + currentTrack.height })
 {
 }
 
 void Track::setCurrentTrack(const cv::Rect& currentTrack)
 {
-	prevTrackZeroIndex = (++prevTrackZeroIndex) % BUFFER_SIZE;
-	prev_tracks_[prevTrackZeroIndex] = current_track_;
-	current_track_ = currentTrack;
+	prev_tracks_.push_back(current_track_);
+	this->current_track_ = currentTrack;
+//	prevTrackZeroIndex = (++prevTrackZeroIndex) % BUFFER_SIZE;
+//	prev_tracks_[prevTrackZeroIndex] = current_track_;
+//	current_track_ = currentTrack;
 }
 
 cv::Rect Track::getCurrentTrack() const
@@ -35,7 +38,7 @@ cv::Rect Track::getCurrentTrack() const
 	return current_track_;
 }
 
-unsigned int Track::getId() const
+int Track::getId() const
 {
 	return trackId;
 }
@@ -58,6 +61,11 @@ void Track::incrementDetectedFrames()
 	lostDetectionFrames = 0;
 	++detectedFrames;
 	++trackedFrames;
+	if(!valid && detectedFrames >= minDetectedFrameThreshold)
+	{
+		valid=true;
+	}
+
 }
 
 void Track::update()
@@ -84,12 +92,12 @@ void Track::update(const cv::Rect& rect)
 	setCurrentTrack(newRect);
 }
 
-std::array<cv::Rect, Track::BUFFER_SIZE> Track::getPrevTracks() const
+const std::vector<cv::Rect>& Track::getPrevTracks() const
 {
-	std::array<cv::Rect, BUFFER_SIZE> temp;
-	for (int i = 0; i < BUFFER_SIZE; i++)
-	{
-		temp[i] = prev_tracks_[(i + prevTrackZeroIndex) % BUFFER_SIZE];
-	}
-	return temp;
+	return prev_tracks_;
+}
+
+bool Track::isValid() const
+{
+	return valid;
 }

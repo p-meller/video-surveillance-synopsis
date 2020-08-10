@@ -1,5 +1,6 @@
 #include "Tracker.h"
 #include "Track.h"
+#include "../Database/Database.h"
 
 //#include <ortools/base/logging.h>
 #include <ortools/linear_solver/linear_solver.h>
@@ -234,14 +235,26 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 
 void Tracker::removeTracks(const std::vector<int>& tracksToRemove)
 {
+	std::vector<Track> trackForDb;
+	trackForDb.reserve(tracksToRemove.size());
 	for (unsigned int i = tracksToRemove.size(); i > 0; --i)
 	{
+		if (trackList[i - 1].isValid())
+		{
+			trackForDb.push_back(trackList[tracksToRemove[i - 1]]);
+		}
+
 		trackList.erase(trackList.begin() + tracksToRemove[i - 1]);
+	}
+	if (!trackForDb.empty())
+	{
+		Database::getInstance().addTracksToDb(trackForDb, frame);
 	}
 }
 
-Tracker::Tracker() : assignmentSolver(
-		new operations_research::MPSolver("simple_mip_program", operations_research::MPSolver::GLOP_LINEAR_PROGRAMMING))
+Tracker::Tracker(bool saveToDb) : assignmentSolver(
+		new operations_research::MPSolver("simple_mip_program",
+				operations_research::MPSolver::GLOP_LINEAR_PROGRAMMING)), saveToDb_(saveToDb), frame(0)
 {
 	trackList.reserve(maxSimultaneousTracks);
 }
@@ -251,8 +264,12 @@ Tracker::~Tracker()
 	delete assignmentSolver;
 }
 
-void Tracker::processDetections(const std::vector<cv::Rect>& detections)
+void Tracker::processDetections(const std::vector<cv::Rect>& detections, int currentFrame)
 {
+	if (currentFrame != -1)
+	{
+		frame = currentFrame;
+	}
 	if (trackList.empty())
 	{
 		if (detections.empty())
@@ -307,6 +324,8 @@ void Tracker::processDetections(const std::vector<cv::Rect>& detections)
 			trackList.emplace_back(Track(detections[i]));
 		}
 	}
+
+	++frame;
 }
 
 void Tracker::drawTracks(cv::Mat& img)
