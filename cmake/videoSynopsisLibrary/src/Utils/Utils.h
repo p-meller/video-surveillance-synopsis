@@ -16,6 +16,13 @@ void filterTracks()
 	{
 		auto allTrackDetection = Database::getInstance().getDetectionsByTrackId(track.trackId);
 
+		if(allTrackDetection.size()<5){
+			trackIdsForRemove.push_back(track.recId);
+			continue;
+		}
+
+		bool remove = false;
+
 		cv::Vec2d centroid(0, 0);
 		for (auto&& detection : allTrackDetection)
 		{
@@ -28,18 +35,20 @@ void filterTracks()
 
 		for (auto&& detection : allTrackDetection)
 		{
+			remove = detection.x < 0 || detection.y < 0 ? true : remove;
 			cv::Vec2d point(detection.x, detection.y);
 			meanDistance += cv::norm(centroid, point);
 		}
 		meanDistance = meanDistance / static_cast<float>(allTrackDetection.size());
 
-		if (meanDistance < 100)
+		if (meanDistance < 50 || remove)
 		{
 			trackIdsForRemove.push_back(track.recId);
 		}
 	}
 
-	if(!trackIdsForRemove.empty()){
+	if (!trackIdsForRemove.empty())
+	{
 		for (auto&& recId: trackIdsForRemove)
 		{
 			Database::getInstance().removeTrack(recId);
@@ -109,14 +118,37 @@ void savePreviewImagesForAllTracks(const std::string& videoPath)
 			found = true;
 			for (auto&& detection : it->second)
 			{
-				int width = detection.width;
-				int height = detection.height;
-//				width = width + detection.x >= 1280 ? width + (1280 - (width + detection.x + 1)) : width;
-//				height = height + detection.y >= 720 ? height + (720 - (height + detection.y + 1)) : height;
-				cv::Rect roi(detection.x, detection.y, width, height);
+				cv::Size expandSize(detection.width * 0.2, detection.height * 0.2);
+				cv::Rect roi(detection.x, detection.y, detection.width, detection.height);
+
+				roi.x -= expandSize.width / 2;
+				roi.width += expandSize.width / 2;
+				roi.y -= expandSize.height / 2;
+				roi.height += expandSize.height / 2;
+
+				if (roi.x < 0)
+				{
+					roi.x -= roi.x;
+					roi.width += roi.x;
+				}
+				if (roi.y < 0)
+				{
+					roi.y -= roi.y;
+					roi.height += roi.y;
+				}
+
+				cv::Size frameSize(frame.cols, frame.rows);
+				roi.width = roi.x + roi.width > frameSize.width ? roi.width - ((roi.width + roi.x) - frameSize.width)
+																: roi.width;
+				roi.height =
+						roi.y + roi.height > frameSize.height ? roi.height - ((roi.height + roi.y) - frameSize.height)
+															  : roi.height;
+
 				cv::Mat previewImage = frame(roi);
 //				cv::rectangle(frameRect,roi,{255,0,0});
 				cv::imwrite("./preview/" + std::to_string(detection.trackId) + ".png", previewImage);
+
+
 			}
 		}
 		i++;

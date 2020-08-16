@@ -7,12 +7,12 @@
 int main()
 {
 
-	bool refreshDatabase = true;
+	bool refreshDatabase = false;
 
 	Detector detector(false);
 	Tracker tracker(refreshDatabase);
 
-	if(!refreshDatabase)
+	if (!refreshDatabase)
 	{
 		filterTracks();
 		savePreviewImagesForAllTracks("1.mp4");

@@ -45,7 +45,7 @@ ApplicationWindow {
             text: qsTr("Preview")
         }
         TabButton {
-            text: qsTr("Synopsis")
+            text: qsTr("Detections")
         }
     }
 
@@ -90,7 +90,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 padding: 5
 
-                SynopsisComponent{
+                DetectionsComponent{
                     anchors.fill: parent
                 }
 
