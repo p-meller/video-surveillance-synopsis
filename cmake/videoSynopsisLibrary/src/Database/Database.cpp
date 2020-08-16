@@ -22,7 +22,6 @@ void Database::addTracksToDb(std::vector<Track> trackList, int currentFrame)
 	{
 		DbTrack dbTrack{};
 		dbTrack.trackId = track.getId();
-		trackStorage.insert(dbTrack);
 
 		int frame = currentFrame;
 
@@ -34,11 +33,23 @@ void Database::addTracksToDb(std::vector<Track> trackList, int currentFrame)
 		dbDetection.width = track.getCurrentTrack().width;
 		dbDetection.height = track.getCurrentTrack().height;
 
-		detectionStorage.insert(dbDetection);
+		int notDetectedFramesCount = track.getLostFrames();
+
+		if (notDetectedFramesCount == 0)
+		{
+			--notDetectedFramesCount;
+			detectionStorage.insert(dbDetection);
+		}
 		auto prevTracks = track.getPrevTracks();
 
-		std::vector<DbDetection> prevDetections(prevTracks.size());
-		for (int i = 0; i < prevTracks.size(); ++i)
+		if (prevTracks.size() - notDetectedFramesCount <= 0)
+		{
+			continue;
+		}
+		frame = frame - notDetectedFramesCount;
+
+		std::vector<DbDetection> prevDetections(prevTracks.size() - notDetectedFramesCount);
+		for (int i = prevDetections.size() - 1; i > -1; --i)
 		{
 			const cv::Rect prev = prevTracks[i];
 			prevDetections[i].trackId = track.getId();
@@ -49,11 +60,36 @@ void Database::addTracksToDb(std::vector<Track> trackList, int currentFrame)
 			prevDetections[i].width = prev.width;
 		}
 
-		detectionStorage.insert_range(prevDetections.begin(),prevDetections.end());
+		trackStorage.insert(dbTrack);
+		detectionStorage.insert_range(prevDetections.begin(), prevDetections.end());
 	}
 
 	//trackStorage.commit();
 
 }
 
+std::vector<DbTrack> Database::getAllTracks()
+{
+	return trackStorage.get_all<DbTrack>();
+}
 
+void Database::updateTrack(const DbTrack& track)
+{
+	trackStorage.update(track);
+}
+
+void Database::removeTrack(int recId)
+{
+	trackStorage.remove<DbTrack>(recId);
+}
+
+std::vector<DbDetection> Database::getAllDetections()
+{
+	return detectionStorage.get_all<DbDetection>();
+}
+
+std::vector<DbDetection> Database::getDetectionsByTrackId(int trackId)
+{
+	using namespace sqlite_orm;
+	return detectionStorage.get_all<DbDetection>(where(c(&DbDetection::trackId) == trackId));
+}

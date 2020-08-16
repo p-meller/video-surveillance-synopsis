@@ -34,6 +34,16 @@ public:
 
 	void addTracksToDb(std::vector<Track> trackList, int currentFrame);
 
+	void updateTrack(const DbTrack& track);
+
+	void removeTrack(int recId);
+
+	std::vector<DbTrack> getAllTracks();
+
+	std::vector<DbDetection> getAllDetections();
+
+	std::vector<DbDetection> getDetectionsByTrackId(int trackId);
+
 };
 
 #endif //VIDEOSYNOPSIS_DATABASE_H

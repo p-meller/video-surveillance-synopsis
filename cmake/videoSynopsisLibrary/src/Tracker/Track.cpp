@@ -101,3 +101,8 @@ bool Track::isValid() const
 {
 	return valid;
 }
+
+int Track::getLostFrames()
+{
+	return lostDetectionFrames;
+}

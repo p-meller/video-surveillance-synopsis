@@ -7,8 +7,16 @@
 int main()
 {
 
+	bool refreshDatabase = true;
+
 	Detector detector(false);
-	Tracker tracker(false);
+	Tracker tracker(refreshDatabase);
+
+	if(!refreshDatabase)
+	{
+		filterTracks();
+		savePreviewImagesForAllTracks("1.mp4");
+	}
 
 	cv::VideoCapture video("1.mp4");
 
@@ -48,6 +56,8 @@ int main()
 
 		++i;
 	}
+
+	//savePreviewImagesForAllTracks("1.mp4");
 
 
 	std::cout << "Hello World!\n";

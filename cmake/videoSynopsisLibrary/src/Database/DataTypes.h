@@ -14,7 +14,9 @@ struct DbDetection{
 struct DbTrack {
 	int recId;
 	int trackId;
+	std::string previewImagePath;
 };
+
 
 inline auto initTracksStorage(const std::string& path)
 {
@@ -22,7 +24,8 @@ inline auto initTracksStorage(const std::string& path)
 	return make_storage(path,
 			make_table("tracks",
 					make_column("recId", &DbTrack::recId, primary_key()),
-					make_column("trackId", &DbTrack::trackId, unique())
+					make_column("trackId", &DbTrack::trackId, unique()),
+					make_column("previewImagePath", &DbTrack::previewImagePath)
 			));
 }
 

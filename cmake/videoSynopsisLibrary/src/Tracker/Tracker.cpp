@@ -182,7 +182,7 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 		//LOG(WARNING) << "No solution found.";
 	}
 
-	//LOG(INFO) << "Total cost = " << objective->Value() << "\n\n";
+	//LOG(INFO) << "Total cost = " << objective->Value() << " \n\n";
 
 	if (assignForTracks)
 	{
@@ -236,10 +236,13 @@ std::vector<int> Tracker::assignTracks(const std::vector<cv::Rect>& detections)
 void Tracker::removeTracks(const std::vector<int>& tracksToRemove)
 {
 	std::vector<Track> trackForDb;
-	trackForDb.reserve(tracksToRemove.size());
+	if (saveToDb_)
+	{
+		trackForDb.reserve(tracksToRemove.size());
+	}
 	for (unsigned int i = tracksToRemove.size(); i > 0; --i)
 	{
-		if (trackList[i - 1].isValid())
+		if (saveToDb_ && trackList[tracksToRemove[i - 1]].isValid())
 		{
 			trackForDb.push_back(trackList[tracksToRemove[i - 1]]);
 		}
@@ -248,7 +251,7 @@ void Tracker::removeTracks(const std::vector<int>& tracksToRemove)
 	}
 	if (!trackForDb.empty())
 	{
-		Database::getInstance().addTracksToDb(trackForDb, frame);
+		Database::getInstance().addTracksToDb(trackForDb, frame - 1);
 	}
 }
 
@@ -343,6 +346,16 @@ void Tracker::drawTracks(cv::Mat& img)
 			cv::putText(img, std::to_string(track.getId()), { track.getCurrentTrack().x, track.getCurrentTrack().y },
 					cv::FONT_HERSHEY_SIMPLEX, 1, { 0, 0, 255 });
 			cv::rectangle(img, track.getCurrentTrack(), { 0, 0, 255 });
+		}
+
+		auto&& prev = track.getCurrentTrack();
+		const auto& prevTracks = track.getPrevTracks();
+
+		for (int i = prevTracks.size(), j = 0; i > 0 && j < 10; --i, ++j)
+		{
+			auto&& currentPrev = prevTracks[i - 1];
+			cv::line(img, { prev.x, prev.y }, { currentPrev.x, currentPrev.y }, { 0, 255, 255 }, 2);
+			prev = currentPrev;
 		}
 	}
 }

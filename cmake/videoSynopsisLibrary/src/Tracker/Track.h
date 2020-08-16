@@ -54,6 +54,8 @@ public:
 	static constexpr int getPrevTracksBufferSize();
 
 	bool isValid() const;
+
+	int getLostFrames();
 };
 
 #endif //VIDEOSYNOPSIS_TRACK_H
