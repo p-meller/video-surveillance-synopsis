@@ -40,9 +40,25 @@ public:
 
 	std::vector<DbTrack> getAllTracks();
 
+	DbTrack getTrackByTrackId(int trackId);
+
+	std::vector<DbTrack> getAllTracksByDirection(DbTrack::Direction direction);
+
+	std::vector<DbTrack> getAllTracksAfterTrackId(int trackId);
+
+	std::vector<DbTrack> getAllTracksBySynopsisAppearOrder(int synopsisAppearOrder);
+
 	std::vector<DbDetection> getAllDetections();
 
 	std::vector<DbDetection> getDetectionsByTrackId(int trackId);
+
+	std::vector<DbDetection> getDetectionsByFrameNum(int frameNum);
+
+	void removeDetectionsByTrackId(int trackId);
+
+	void clearTracks();
+
+	void clearDetections();
 
 };
 

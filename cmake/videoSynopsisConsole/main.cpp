@@ -14,8 +14,8 @@ int main()
 
 	if (!refreshDatabase)
 	{
-		filterTracks();
-		savePreviewImagesForAllTracks("1.mp4");
+		//filterTracks();
+		//savePreviewImagesForAllTracks("1.mp4");
 	}
 
 	cv::VideoCapture video("1.mp4");
@@ -24,6 +24,7 @@ int main()
 	int add = 20;
 
 	int i = 0;
+	bool backgroundReady = false;
 
 	while (video.isOpened())
 	{
@@ -34,15 +35,29 @@ int main()
 			break;
 		}
 
+		if (!backgroundReady)
+		{
+			detector.backgroundModeling(frame);
+			++i;
+			if (i > 40)
+			{
+				i = 0;
+				video.set(cv::CAP_PROP_POS_FRAMES, 0);
+				backgroundReady = true;
+			}
+			continue;
+		}
+
 		detector.processFrame(frame);
-		if (i > 20)
+		if (i > 5)
 		{
 			tracker.processDetections(detector.getDetections(), i);
 			tracker.drawTracks(frame);
-		}
-		for (auto&& element : detector.getDetections())
-		{
-			cv::rectangle(frame, element, { 0, 255, 0 });
+
+			for (auto&& element : detector.getDetections())
+			{
+				cv::rectangle(frame, element, { 0, 255, 0 });
+			}
 		}
 
 		cv::imshow("input", frame);

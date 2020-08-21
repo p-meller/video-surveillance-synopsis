@@ -182,7 +182,7 @@ Item {
                             x: 0
                             y: 0
                             Layout.fillWidth: true
-                            columns: 2
+                            columns: 3
 
                             Label {
                                 text: "MOG2 history"
@@ -198,6 +198,11 @@ Item {
                             }
 
                             Label {
+                                id: settingsBgHistoryValue
+                                text: settingsBgHistory.value
+                            }
+
+                            Label {
                                 text: "MOG2 var threshold"
                             }
 
@@ -208,6 +213,11 @@ Item {
                                 from: 0
                                 to: 128
                                 stepSize: 0.1
+                            }
+
+                            Label {
+                                id: settingsBgVarThresholdValue
+                                text: settingsBgVarThreshold.value
                             }
                         }
 
@@ -234,7 +244,7 @@ Item {
 
                             GridLayout{
                                 Layout.fillWidth: true
-                                columns: 2
+                                columns: 3
 
                                 Label {
                                     text: "Median filter size"
@@ -247,6 +257,11 @@ Item {
                                     from: 3
                                     to: 41
                                     stepSize: 2
+                                }
+
+                                Label {
+                                    id: settingsFgMedianSizeValue
+                                    text: settingsFgMedianSize.value
                                 }
 
                                 Label {
@@ -263,6 +278,11 @@ Item {
                                 }
 
                                 Label {
+                                    id: settingsFgMorphCloseSizeValue
+                                    text: settingsFgMorphCloseSize.value
+                                }
+
+                                Label {
                                     text: "Morph open size"
                                 }
 
@@ -273,6 +293,11 @@ Item {
                                     from: 3
                                     to: 41
                                     stepSize: 2
+                                }
+
+                                Label {
+                                    id: settingsFgMorphOpenSizeValue
+                                    text: settingsFgMorphOpenSize.value
                                 }
                             }
                         }
@@ -301,7 +326,7 @@ Item {
 
                             GridLayout{
                                 Layout.fillWidth: true
-                                columns: 2
+                                columns: 3
                                 Label {
                                     text: "Min contour area"
                                 }
@@ -316,6 +341,11 @@ Item {
                                 }
 
                                 Label {
+                                    id: settingsContourMinAreaValue
+                                    text: settingsContourMinArea.value
+                                }
+
+                                Label {
                                     text: "Morph close size"
                                 }
 
@@ -326,6 +356,11 @@ Item {
                                     from: 3
                                     to: 81
                                     stepSize: 2
+                                }
+
+                                Label {
+                                    id: settingsContourMorphCloseSizeValue
+                                    text: settingsContourMorphCloseSize.value
                                 }
 
                             }

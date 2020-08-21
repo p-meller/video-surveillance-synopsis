@@ -60,6 +60,7 @@ void Database::addTracksToDb(std::vector<Track> trackList, int currentFrame)
 			prevDetections[i].width = prev.width;
 		}
 
+		dbTrack.appearFrame=frame;
 		trackStorage.insert(dbTrack);
 		detectionStorage.insert_range(prevDetections.begin(), prevDetections.end());
 	}
@@ -70,7 +71,27 @@ void Database::addTracksToDb(std::vector<Track> trackList, int currentFrame)
 
 std::vector<DbTrack> Database::getAllTracks()
 {
-	return trackStorage.get_all<DbTrack>();
+	using namespace sqlite_orm;
+	return trackStorage.get_all<DbTrack>(order_by(&DbTrack::trackId));
+}
+
+DbTrack Database::getTrackByTrackId(int trackId)
+{
+	using namespace sqlite_orm;
+	return trackStorage.get_all<DbTrack>(where(c(&DbTrack::trackId) == trackId))[0];
+}
+
+
+std::vector<DbTrack> Database::getAllTracksByDirection(DbTrack::Direction direction)
+{
+	using namespace sqlite_orm;
+	return trackStorage.get_all<DbTrack>(where(c(&DbTrack::direction) == static_cast<int>(direction)), order_by(&DbTrack::trackId));
+}
+
+std::vector<DbTrack> Database::getAllTracksAfterTrackId(int trackId)
+{
+	using namespace sqlite_orm;
+	return trackStorage.get_all<DbTrack>(where(c(&DbTrack::trackId) > trackId), order_by(&DbTrack::trackId));
 }
 
 void Database::updateTrack(const DbTrack& track)
@@ -93,3 +114,32 @@ std::vector<DbDetection> Database::getDetectionsByTrackId(int trackId)
 	using namespace sqlite_orm;
 	return detectionStorage.get_all<DbDetection>(where(c(&DbDetection::trackId) == trackId));
 }
+
+std::vector<DbDetection> Database::getDetectionsByFrameNum(int frameNum)
+{
+	using namespace sqlite_orm;
+	return detectionStorage.get_all<DbDetection>(where(c(&DbDetection::absolutFrame) == frameNum));
+}
+
+void Database::removeDetectionsByTrackId(int trackId)
+{
+	using namespace sqlite_orm;
+	detectionStorage.remove_all<DbDetection>(where(c(&DbDetection::trackId) == trackId));
+}
+
+void Database::clearTracks()
+{
+	trackStorage.drop_table(DbTrack::getTableName());
+	trackStorage.sync_schema();
+}
+
+void Database::clearDetections()
+{
+	detectionStorage.drop_table(DbDetection::getTableName());
+	detectionStorage.sync_schema();
+}
+
+std::vector<DbTrack> Database::getAllTracksBySynopsisAppearOrder(int synopsisAppearOrder)
+{
+	using namespace sqlite_orm;
+	return trackStorage.get_all<DbTrack>(where(c(&DbTrack::synopsisAppearOrder) == synopsisAppearOrder), order_by(&DbTrack::trackId));}

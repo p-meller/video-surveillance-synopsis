@@ -34,13 +34,15 @@ if (ANDROID)
             src/qml.qrc
             src/PreviewFilter.cpp
             src/PreviewImageProvider.cpp
+            src/VideoSynopsisController.cpp
             )
 else ()
     add_executable(videoSynopsisGui
             src/main.cpp
             src/qml.qrc
             src/PreviewFilter.cpp
-            src/PreviewImageProvider.cpp)
+            src/PreviewImageProvider.cpp
+            src/VideoSynopsisController.cpp)
 endif ()
 
 target_include_directories(videoSynopsisGui PRIVATE src ../videoSynopsisLibrary/include)

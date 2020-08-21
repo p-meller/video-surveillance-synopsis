@@ -1,7 +1,7 @@
 #include "PreviewFilter.h"
 #include "videoSynopsisLib.h"
 
-#include <QDebug>
+//#include <QDebug>
 #include <opencv2/imgproc.hpp>
 #include <memory>
 
@@ -87,7 +87,7 @@ QVideoFrame QCvPreviewFilterRunnable::run(QVideoFrame* input, const QVideoSurfac
 	}
 	else
 	{
-		qDebug() << "Other surface formats are not supported yet!";
+		//qDebug() << "Other surface formats are not supported yet!";
 	}
 
 	input->unmap();

@@ -5,6 +5,7 @@
 #include "PreviewFilter.h"
 #include "PreviewImageProvider.h"
 #include "DetectorOutputTypeEnum.h"
+#include "VideoSynopsisController.h"
 
 int main(int argc, char* argv[])
 {
@@ -12,14 +13,17 @@ int main(int argc, char* argv[])
 
 	QGuiApplication app(argc, argv);
 
+	//QDir().mkdir("preview");
+
 	qmlRegisterType<PreviewFilter>("com.videoSynopsisGui.classes", 1, 0, "PreviewFilter");
 	qmlRegisterType<PreviewImageProvider>("com.videoSynopsisGui.classes", 1, 0, "PreviewImageProvider");
-
+	qmlRegisterType<VideoSynopsisController>("com.videoSynopsisGui.classes", 1, 0, "VideoSynopsisController");
 
 	QQmlApplicationEngine engine;
 	PreviewImageProvider* imageProvider = new PreviewImageProvider;
 
 	engine.rootContext()->setContextProperty("imageProvider", imageProvider);
+	engine.rootContext()->setContextProperty("appRootPath", "file://"+QDir::currentPath()+"/");
 	engine.addImageProvider(QLatin1String("previewprovider"), imageProvider);
 	const QUrl url(QStringLiteral("qrc:/main.qml"));
 	QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

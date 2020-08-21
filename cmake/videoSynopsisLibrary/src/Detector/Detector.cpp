@@ -56,6 +56,11 @@ Detector::Detector(bool forPreview)
 	forPreview_ = forPreview;
 }
 
+void Detector::backgroundModeling(const cv::Mat& inputFrame)
+{
+	bgSubtractor_->apply(inputFrame, this->foreground_);
+}
+
 void Detector::processFrame(const cv::Mat& inputFrame)
 {
 	bgSubtractor_->apply(inputFrame, this->foreground_);
@@ -121,4 +126,14 @@ bool Detector::isForPreview() const
 void Detector::setForPreview(bool forPreview)
 {
 	forPreview_ = forPreview;
+}
+
+void Detector::saveBg()
+{
+	 bgSubtractor_->getBackgroundImage(bg_);
+}
+
+cv::Mat& Detector::getBg()
+{
+	return bg_;
 }

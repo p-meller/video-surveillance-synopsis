@@ -17,6 +17,7 @@ class Detector
 	cv::Mat contoursFiltered_;
 	cv::Mat mask_;
 	cv::Mat roi_;
+	cv::Mat bg_;
 
 	DetectorSettings settings_;
 
@@ -26,6 +27,8 @@ class Detector
 
 public:
 	explicit Detector(bool forPreview = false);
+
+	void backgroundModeling(const cv::Mat& inputFrame);
 
 	void processFrame(const cv::Mat& inputFrame);
 
@@ -40,6 +43,10 @@ public:
 	bool isForPreview() const;
 
 	void setForPreview(bool forPreview);
+
+	void saveBg();
+
+	cv::Mat& getBg();
 
 };
 

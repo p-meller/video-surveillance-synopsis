@@ -4,20 +4,21 @@
 #include <string>
 #include "../Database/Database.h"
 #include <opencv2/opencv.hpp>
+#include <cmath>
 
-
-void filterTracks()
+inline void filterTracks()
 {
 	auto allTracks = Database::getInstance().getAllTracks();
 
-	std::vector<int> trackIdsForRemove;
+	std::vector<DbTrack> trackIdsForRemove;
 
 	for (auto&& track : allTracks)
 	{
 		auto allTrackDetection = Database::getInstance().getDetectionsByTrackId(track.trackId);
 
-		if(allTrackDetection.size()<5){
-			trackIdsForRemove.push_back(track.recId);
+		if (allTrackDetection.size() < 5)
+		{
+			trackIdsForRemove.push_back(track);
 			continue;
 		}
 
@@ -43,20 +44,149 @@ void filterTracks()
 
 		if (meanDistance < 50 || remove)
 		{
-			trackIdsForRemove.push_back(track.recId);
+			trackIdsForRemove.push_back(track);
 		}
 	}
 
 	if (!trackIdsForRemove.empty())
 	{
-		for (auto&& recId: trackIdsForRemove)
+		for (auto&& track: trackIdsForRemove)
 		{
-			Database::getInstance().removeTrack(recId);
+			Database::getInstance().removeTrack(track.recId);
+			Database::getInstance().removeDetectionsByTrackId(track.trackId);
 		}
 	}
 }
 
-void savePreviewImagesForAllTracks(const std::string& videoPath)
+inline void calculateDirectionsForAllTrack()
+{
+	auto allTracks = Database::getInstance().getAllTracks();
+
+	std::vector<int> trackIdsForRemove;
+
+	for (auto&& track : allTracks)
+	{
+		bool first = true;
+		int x = 0;
+		int y = 0;
+
+		int right = 0, up = 0, left = 0, down = 0;
+
+		auto allTrackDetection = Database::getInstance().getDetectionsByTrackId(track.trackId);
+
+		for (auto&& detection : allTrackDetection)
+		{
+			if (first)
+			{
+				x = detection.x;
+				y = detection.y;
+				first = false;
+			}
+			else
+			{
+				int dirX = detection.x - x;
+				int dirY = y - detection.y;
+				x = detection.x;
+				y = detection.y;
+				if (dirX == 0 && dirY == 0)
+				{
+					continue;
+				}
+				int direction = atan2(dirX, dirY);
+
+				if (direction < M_PI / 4.0 && direction > -M_PI / 4.0)
+				{
+					++right;
+				}
+				else if (direction < 3 * M_PI / 4.0 && direction > M_PI / 4.0)
+				{
+					++up;
+				}
+				else if (direction > 3 * M_PI / 4.0 && direction < -3 * M_PI / 4.0)
+				{
+					++left;
+				}
+				else
+				{
+					++down;
+				}
+			}
+		}
+
+		int max = 0;
+		if (right > max)
+		{
+			track.direction = DbTrack::Right;
+			max = right;
+		}
+		if (up > max)
+		{
+			track.direction = DbTrack::Up;
+			max = up;
+		}
+		if (left > max)
+		{
+			track.direction = DbTrack::Left;
+			max = left;
+		}
+		if (down > max)
+		{
+			track.direction = DbTrack::Down;
+		}
+
+		Database::getInstance().updateTrack(track);
+	}
+}
+
+inline void calculateSynopsisOrderForNextTracks(int currentTrackId)
+{
+	auto currentTrack = Database::getInstance().getTrackByTrackId(currentTrackId);
+
+	auto ATrackDetections = Database::getInstance().getDetectionsByTrackId(currentTrack.trackId);
+
+	auto nextTracks = Database::getInstance().getAllTracksAfterTrackId(currentTrack.trackId);
+
+	//bool overlap = ((A & B).area() > 0);
+
+	bool overlap = false;
+
+	for (auto&& track : nextTracks)
+	{
+		auto BTrackDetections = Database::getInstance().getDetectionsByTrackId(track.trackId);
+
+
+		for (int i = 0; i < ATrackDetections.size(); ++i)
+		{
+			auto roiA = ATrackDetections[i];
+			cv::Rect rectA(roiA.x, roiA.y, roiA.width, roiA.height);
+			for (int j = 0; i < BTrackDetections.size(); ++i)
+			{
+				auto roiB = BTrackDetections[j];
+				cv::Rect rectB(roiB.x, roiB.y, roiB.width, roiB.height);
+				if ((rectA & rectB).area() > 0)
+				{
+					overlap = true;
+					break;
+				}
+			}
+			if (overlap)
+			{
+				break;
+			}
+		}
+		if (overlap)
+		{
+			currentTrack.nextTrackFrameOffset = 100;
+			currentTrack.nextTrackId = track.trackId;
+			track.synopsisAppearOrder = currentTrack.synopsisAppearOrder + 1;
+			Database::getInstance().updateTrack(currentTrack);
+			Database::getInstance().updateTrack(track);
+			break;
+		}
+	}
+}
+
+inline void savePreviewImagesForAllTracks(const std::string& videoPath)
 {
 	auto allTracks = Database::getInstance().getAllTracks();
 
