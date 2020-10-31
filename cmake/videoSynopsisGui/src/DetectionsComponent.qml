@@ -22,7 +22,8 @@ Item {
         folder: shortcuts.home
         nameFilters: ["video files (*.mp4 *.mkv *.avi)", "All files (*)"]
         onAccepted: {
-            videoSynopsisController.processVideo(fileDialog.fileUrl)
+            videoPath = fileDialog.fileUrl
+            videoPath = videoPath.replace("file://","")
         }
         onRejected: {
         }

@@ -223,7 +223,7 @@ void VideoSynopsisWorker::createSimpleVideoSynopsis(const QString& videoPath)
 	long frameLengthInMicroseconds = 1000000 / fps;
 	outputVideo.open("./synopsis/simpleSynopsis.avi", fourcc, fps, S, true);
 
-	cv::Mat bg = cv::imread(QDir("bg").absoluteFilePath("bg.png").toStdString());
+	//cv::Mat bg = cv::imread(QDir("bg").absoluteFilePath("bg.png").toStdString());
 
 	int i = 0;
 	while (inputVideo.isOpened())
@@ -247,9 +247,11 @@ void VideoSynopsisWorker::createSimpleVideoSynopsis(const QString& videoPath)
 			continue;
 		}
 
-		cv::Mat outputFrame;
 
-		bg.copyTo(outputFrame);
+
+		//cv::Mat outputFrame;
+
+		//inputFrame.copyTo(outputFrame);
 
 		for (auto&& detection : detections)
 		{
@@ -268,8 +270,6 @@ void VideoSynopsisWorker::createSimpleVideoSynopsis(const QString& videoPath)
 				continue;
 			}
 
-			cv::Mat outputFrameRoi = outputFrame(roi);
-			cv::Mat inputFrameRoi = inputFrame(roi);
 
 			auto seconds = std::to_string((i * frameLengthInMicroseconds / 1000000) % 60);
 			auto minutes = std::to_string(i * frameLengthInMicroseconds / (60 * 1000000));
@@ -278,13 +278,15 @@ void VideoSynopsisWorker::createSimpleVideoSynopsis(const QString& videoPath)
 					(minutes.length() == 1 ? "0" + minutes : minutes) + ":" +
 					(seconds.length() == 1 ? "0" + seconds : seconds);
 
-			cv::putText(outputFrame, time, { roi.x, roi.y },
-					cv::FONT_HERSHEY_SIMPLEX, 1, { 255, 255, 255 });
+            cv::putText(inputFrame, std::to_string(detection.trackId) + "   " + time, { roi.x, roi.y },
+                        cv::FONT_HERSHEY_SIMPLEX, 0.7, { 0, 0, 0 },3);
+            cv::putText(inputFrame, std::to_string(detection.trackId) + "   " + time, { roi.x, roi.y },
+                        cv::FONT_HERSHEY_SIMPLEX, 0.7, { 255, 255, 255 },2);
 
-			inputFrameRoi.copyTo(outputFrameRoi);
+            qDebug() << ("Frame num:" + std::to_string(i) + "  trackId: " + std::to_string(detection.trackId)).c_str();
 		}
 
-		outputVideo.write(outputFrame);
+		outputVideo.write(inputFrame);
 
 	}
 
@@ -395,12 +397,18 @@ void VideoSynopsisWorker::createVideoSynopsis(const QString& videoPath)
 	int frameNum = 0;
 
 	int tracksToSave = trackImages.size();
+
+    std::vector<std::pair<std::string, cv::Rect>> textList;
+    textList.reserve(trackList.size());
 	while (!trackImages.empty())
 	{
 		cv::Mat outputFrame = bg.clone();
+
 		for (int i = 0; i < trackList.size(); ++i)
 		{
-			auto it = trackImages.find(trackList[i].trackId);
+            qDebug() << (std::to_string(i) + "   " + std::to_string(trackList[i].trackId)).c_str();
+
+            auto it = trackImages.find(trackList[i].trackId);
 			if (it != trackImages.end())
 			{
 				auto trackImage = it->second;
@@ -418,23 +426,33 @@ void VideoSynopsisWorker::createVideoSynopsis(const QString& videoPath)
 						(minutes.length() == 1 ? "0" + minutes : minutes) + ":" +
 						(seconds.length() == 1 ? "0" + seconds : seconds);
 
-				cv::putText(outputFrame, std::to_string(trackList[i].trackId) + "   " + time, { roi.x, roi.y },
-						cv::FONT_HERSHEY_SIMPLEX, 0.7, { 255, 255, 255 });
+				int trackId = trackList[i].trackId;
+				if(trackId==13){
+                    qDebug() << "Dodaje 13";
+				}
+
+				textList.emplace_back(std::to_string(trackList[i].trackId) + "   " + time, roi);
 
 				trackImage.images[trackImage.currentFrame].copyTo(frameRoi);
 				it->second.currentFrame += 1;
-//				if (it->second.currentFrame == trackList[i].nextTrackFrameOffset)
-//				{
-//					if (trackList[i].nextTrackId != -1)
-//					{
-//						trackList.push_back(Database::getInstance().getTrackByTrackId(trackList[i].nextTrackId));
-//						trackList[i].nextTrackId = -1;
-//					}
-//				}
+				if (it->second.currentFrame == trackList[i].nextTrackFrameOffset)
+				{
+					if (trackList[i].nextTrackId != -1)
+					{
+                        if(trackId==13){
+                            qDebug() << "Dodaje 13 bo offset";
+                        }
+						trackList.push_back(Database::getInstance().getTrackByTrackId(trackList[i].nextTrackId));
+						trackList[i].nextTrackId = -1;
+					}
+				}
 				if (it->second.currentFrame == trackImage.images.size())
 				{
 					if (trackList[i].nextTrackId != -1)
 					{
+                        if(trackId==13){
+                            qDebug() << "Dodaje 13 bo koniec";
+                        }
 						trackList.push_back(Database::getInstance().getTrackByTrackId(trackList[i].nextTrackId));
 						trackList[i].nextTrackId = -1;
 					}
@@ -443,6 +461,13 @@ void VideoSynopsisWorker::createVideoSynopsis(const QString& videoPath)
 				//it->second.
 			}
 		}
+		for(auto &&text : textList){
+            cv::putText(outputFrame, text.first, { text.second.x, text.second.y },
+                        cv::FONT_HERSHEY_SIMPLEX, 0.7, { 0, 0, 0 },4);
+            cv::putText(outputFrame, text.first, { text.second.x, text.second.y },
+                        cv::FONT_HERSHEY_SIMPLEX, 0.7, { 255, 255, 255 },2);
+		}
+		textList.clear();
 		emit progressMessage("Saving synopsis", tracksToSave - trackImages.size(), tracksToSave);
 		outputVideo.write(outputFrame);
 		qDebug() << ("Frame num:" + std::to_string(frameNum++) + "  trackImagesSize: " +

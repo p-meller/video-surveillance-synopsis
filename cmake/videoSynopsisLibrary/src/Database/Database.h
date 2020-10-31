@@ -2,7 +2,7 @@
 #define VIDEOSYNOPSIS_DATABASE_H
 
 #include "../Tracker/Track.h"
-#include <sqlite_orm/sqlite_orm.h>
+#include "../Utils/sqlite_orm.h"
 #include "DataTypes.h"
 
 class Database
@@ -44,7 +44,7 @@ public:
 
 	std::vector<DbTrack> getAllTracksByDirection(DbTrack::Direction direction);
 
-	std::vector<DbTrack> getAllTracksAfterTrackId(int trackId);
+	std::vector<DbTrack> getAllTracksAfterTrackId(int trackId, DbTrack::Direction direction);
 
 	std::vector<DbTrack> getAllTracksBySynopsisAppearOrder(int synopsisAppearOrder);
 

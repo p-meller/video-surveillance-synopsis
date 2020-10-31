@@ -6,7 +6,7 @@ struct DetectorSettings
 {
 	//bg_subtractor
 	int Mog2History = 500;
-	double Mog2VarTreshold = 64;
+	double Mog2VarTreshold = 32;
 
 	//bg_filter
 	int FgMedianBlurSize = 5;

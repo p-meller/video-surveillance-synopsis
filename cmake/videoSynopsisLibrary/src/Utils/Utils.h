@@ -144,39 +144,35 @@ inline void calculateSynopsisOrderForNextTracks(int currentTrackId)
 
 	auto ATrackDetections = Database::getInstance().getDetectionsByTrackId(currentTrack.trackId);
 
-	auto nextTracks = Database::getInstance().getAllTracksAfterTrackId(currentTrack.trackId);
+	auto nextTracks = Database::getInstance().getAllTracksAfterTrackId(currentTrack.trackId, DbTrack::Direction(currentTrack.direction));
 
 	//bool overlap = ((A & B).area() > 0);
 
-	bool overlap = false;
+	int overlapCount = 0;
 
 	for (auto&& track : nextTracks)
 	{
 		auto BTrackDetections = Database::getInstance().getDetectionsByTrackId(track.trackId);
 
+        int moveByFrames = 0;
+        for(int i=0;i<ATrackDetections.size();++i) {
+            for (int j = 0; i+j< BTrackDetections.size(); ++j) {
 
-		for (int i = 0; i < ATrackDetections.size(); ++i)
+                auto roiA = ATrackDetections[j+i];
+                cv::Rect rectA(roiA.x, roiA.y, roiA.width, roiA.height);
+                auto roiB = BTrackDetections[j];
+                cv::Rect rectB(roiB.x, roiB.y, roiB.width, roiB.height);
+                if ((rectA & rectB).area() > 0) {
+                    moveByFrames=i;
+                    ++overlapCount;
+                    continue;
+                }
+            }
+        }
+
+		if (overlapCount>10)
 		{
-			auto roiA = ATrackDetections[i];
-			cv::Rect rectA(roiA.x, roiA.y, roiA.width, roiA.height);
-			for (int j = 0; i < BTrackDetections.size(); ++i)
-			{
-				auto roiB = BTrackDetections[j];
-				cv::Rect rectB(roiB.x, roiB.y, roiB.width, roiB.height);
-				if ((rectA & rectB).area() > 0)
-				{
-					overlap = true;
-					break;
-				}
-			}
-			if (overlap)
-			{
-				break;
-			}
-		}
-		if (overlap)
-		{
-			currentTrack.nextTrackFrameOffset = 100;
+			currentTrack.nextTrackFrameOffset = moveByFrames;
 			currentTrack.nextTrackId = track.trackId;
 			track.synopsisAppearOrder = currentTrack.synopsisAppearOrder + 1;
 			Database::getInstance().updateTrack(currentTrack);
